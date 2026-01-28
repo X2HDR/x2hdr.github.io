@@ -1,0 +1,459 @@
+a {
+    color: black;
+    text-decoration: none;
+  }
+  
+  a:focus,
+  a:hover {
+    color: rgba(0, 0, 0, 0.516);
+    text-decoration: none;
+  }
+  
+  a.links {
+    color: black;
+    text-decoration: none;
+    font-weight: 500;
+  }
+  
+  a.links:focus,
+  a.links:hover {
+    color: rgb(137, 0, 225);
+    text-decoration: none;
+    font-weight: 500;
+  }
+  
+  a.links2 {
+    color: black;
+    text-decoration: underline;
+    font-weight: 700;
+    padding-right: 4px;
+  }
+  
+  a.links2:hover {
+    color: orange;
+  }
+  
+  a.links3 {
+    color: #1772cf;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: medium;
+    padding-right: 4px;
+  }
+  
+  a.links3:hover {
+    color: rgb(137, 0, 225);
+  }
+  
+  body {
+    background-color: #f9f1f3;
+    /* background-color: white; */
+    padding-top: 0px;
+    padding-bottom: 25px;
+    -webkit-font-smoothing: antialiased; /* Chrome, Safari */
+    -moz-osx-font-smoothing: grayscale;  /* Firefox on macOS */
+  }
+  
+  @media only screen and (max-width: 40em) {
+    #banner-load {
+      width: 100%;
+    }
+  
+    thead th:not(:first-child) {
+        display: none;
+    }
+  
+    td, th {
+        display: block;
+    }
+  
+    td[data-th]:before  {
+        content: attr(data-th);
+    }
+  }
+  
+  @media only screen and (max-width: 40em) {
+    #banner-load {
+      width: 100%;
+    }
+  
+    thead th:not(:first-child) {
+        display: none;
+    }
+  
+    td, th {
+        display: block;
+    }
+  
+    img {
+      display: none;
+      image-rendering: auto;
+    }
+  
+    td[data-th]:before  {
+        content: attr(data-th);
+    }
+  }
+  
+  @media only screen and (max-width: 768px) { 
+    #timeline { 
+      display: none; 
+    } 
+  
+    #photos { 
+      display: none; 
+    } 
+  
+  }
+  
+  table{border-collapse:collapse;}
+  
+  body::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* Hide scrollbar for IE, Edge and Firefox */
+  body {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+  
+  body,
+  td,
+  th,
+  tr,
+  p,
+  a {
+    font-family: 'Fontin';
+    font-size: 15px
+  }
+  
+  strong {
+    font-family: 'Fontin';
+    font-size: 15px;
+  }
+  
+  heading {
+    font-family: 'Fontin';
+    font-size: 22px;
+    font-weight: 700
+  }
+  
+  heading2 {
+    font-family: 'Fontin';
+    font-size: 16px;
+    font-weight: 700
+  }
+  
+  papertitle {
+    font-family: 'Fontin';
+    font-size: 14px;
+    font-weight: 700;
+  }
+  
+  name {
+    font-family: 'Fontin';
+    font-size: 25px;
+  }
+  
+  name2 {
+    font-family: 'Fontin';
+    font-size: 16px;
+  }
+  
+  venue {
+    font-family: 'Fontin';
+    border-radius: 0.25rem;
+    font-size: small;
+  }
+  
+  pub {
+    margin: 5px 0px 5px 0px;
+    font-size: small;
+  }
+  
+  .one {
+    /* width: 160px;
+    height: 160px; */
+    position: relative;
+  }
+  
+  .two {
+    /* width: 340px;
+    height: 160px; */
+    position: absolute;
+    transition: opacity .2s ease-in-out;
+    -moz-transition: opacity .2s ease-in-out;
+    -webkit-transition: opacity .2s ease-in-out;
+  }
+  
+  .fade {
+    transition: opacity .2s ease-in-out;
+    -moz-transition: opacity .2s ease-in-out;
+    -webkit-transition: opacity .2s ease-in-out;
+  }
+  
+  span.highlight {
+    background: linear-gradient(to right, #f9f1f3 , rgb(230, 213, 213));;
+  }
+  
+  table {
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+  
+  /* td {
+    border: none;
+    border-style: none none none none;
+    padding: 10px;
+  } */
+  
+  tr:first-child td:first-child { border-top-left-radius: 10px; }
+  tr:first-child td:last-child { border-top-right-radius: 10px; }
+  
+  tr:last-child td:first-child { border-bottom-left-radius: 10px; }
+  tr:last-child td:last-child { border-bottom-right-radius: 10px; }
+  
+  button {
+    display: inline-block;
+    padding: 0.3em 0.4em;
+    font-size: small;
+    font-weight: 700;
+    line-height: 1;
+    color: #fff;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: 0.425rem;
+    border: none;
+  }
+  
+  .CodeMirror {
+      font-size: .8em;
+      height: auto;
+  }
+  
+  .CodeMirror-scroll {
+      overflow-y: hidden;
+      overflow-x: auto;
+  }
+  
+  pre {
+    display: block;
+    font-family: monospace;
+    margin: 1em 0px;
+    word-wrap: break-word;
+    white-space: pre-wrap;
+  }
+  
+  #small-caps {
+    font-variant-caps: small-caps;
+  }  
+  
+  .news {
+    border-collapse: collapse;
+    border-spacing: 0;
+  }
+  
+  .tdnews {
+    border: none;
+    border-style: none none none none;
+    padding: 0px 0px 0px 30px;
+  }
+  
+  /* custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 20px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background-color: transparent;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background-color: #d6dee1;
+    border-radius: 20px;
+    border: 6px solid transparent;
+    background-clip: content-box;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: #a8bbbf;
+  }
+  
+  .hoverable {
+    transition: transform 0.2s ease;
+  }
+  
+  /* .hoverable:hover {
+    transform: scale(1.1);
+  } */
+  
+  .hoverable2 {
+    transition: transform .2s ease;
+  }
+  
+  /* .hoverable2:hover {
+    transform: scale(1.02);
+  } */
+  
+  tab {
+    padding-left: 10px;
+  }
+  
+  .container{
+      width: 1250px;
+  }
+  
+  
+  #myhr {
+    margin-top: 2px; 
+    margin-bottom: 4px; 
+    border-top: 2px solid #FFF0F2; 
+    border-color: black;
+  }
+  
+  .video-container {
+    position: relative;
+    width: 100%;
+    padding-top: 56.25%; /* 16:9 aspect ratio (9/16 = 0.5625) */
+    height: 0;
+    overflow: hidden;
+  }
+  
+  .video-container iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+  
+  .bibtexcontainer {
+    border: 1px solid #ccc;
+    width: fit-content;
+    font-family: monospace;
+    border-radius: 4px;
+  }
+  
+  .bibtex-header {
+    background-color: #dbdbdb;
+    padding: 4px 8px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    font-size: small;
+    transition: background-color 0.6s ease;
+  }
+  
+  .bibtex-header.copied {
+    background-color: #baffba; /* light green highlight */
+    border-radius: 4px;
+    /* border: 1px solid #ccc; */
+  }
+  
+  .copy-button {
+    padding: 2px 6px;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  
+  .bibtex-content {
+    margin: 0;
+    padding: 0; /* top padding is now 0, but we keep some side and bottom padding */
+  }
+  
+  pre {
+    border-radius: 0;
+  }
+  
+  
+  .paperbody {
+    width: 98%; margin-left: auto; margin-right: auto;
+  }
+  
+  .image-row {
+    display: flex;
+    flex-wrap: wrap;
+    /* justify-content: center; */
+    gap: 16px;
+    /* max-width: 1000px; */
+    margin: 0 auto;
+  }
+  
+  .image-item {
+    width: 125px;
+    /* text-align: center; */
+  }
+  
+  .image-item a {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+  }
+  
+  .image-item img {
+    width: 100%;
+    height: auto;
+    /* border-radius: 4px; */
+    display: block;
+    transition: transform 0.2s ease;
+  }
+  
+  .image-item img:hover {
+    transform: scale(1.03);
+  }
+  
+  .image-item2 {
+    width: 200px;
+    /* text-align: center; */
+  }
+  
+  .image-item2 img {
+    width: 100%;
+    height: auto;
+    /* border-radius: 4px; */
+    display: block;
+    transition: transform 0.2s ease;
+  }
+  
+  .caption {
+    margin-top: 4px;
+    font-size: 14px;
+    /* color: #555; */
+  }
+  
+  .zoomable-image {
+    cursor: pointer;
+    transition: transform 0.3s ease;
+    max-width: 200px;
+    height: auto;
+  }
+  
+  .zoom-clone {
+    position: fixed;
+    z-index: 1000;
+    transition: all 0.4s ease;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    pointer-events: none;
+    object-fit: contain;
+  }
+  
+  #zoom-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    background: rgba(0, 0, 0, 0.8);
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+  }
+  
+  #zoom-overlay img {
+    max-width: 90vw;
+    max-height: 90vh;
+    transition: transform .3s ease;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+  }

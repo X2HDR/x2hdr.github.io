@@ -1,0 +1,227 @@
+
+<!DOCTYPE html>
+<html>
+
+
+            
+<head lang="en">
+    
+    <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MEFETL6NEW"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+
+gtag('config', 'G-MEFETL6NEW');
+</script>
+    
+    <meta charset="UTF-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+
+    <title>X2HDR</title>
+
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.8.0/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="styles/stylesheet.css">
+    <link rel="icon" href="logos/hdr.png">
+    <style>
+        @import url('https://fonts.cdnfonts.com/css/fontin');
+    </style>
+</head>
+
+
+<body style="background-color: white;">
+    <table style="margin-left: auto;margin-right: auto;padding-top: 20px;">
+      <tr>
+        <td>
+          <!-- <hr> -->
+          <table
+            style="vertical-align: top;max-width:1225px;display: inline-block;border:0px;border-spacing:0px;border-collapse:separate;">
+            <tbody>
+              <tr style="padding:0px">
+                <td style="padding:0px">
+                  <table
+                    style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;">
+                    <tbody>
+                      <tr>
+                        <th style="width:67%"></th>
+                        <th style="width:33%"></th>
+                      </tr>
+                      <tr style="padding:0px;">
+                        <td style="vertical-align: top; padding-right: 12px; padding-left: 12px;">
+                            <h2>X2HDR: HDR Image Generation in a Perceptually Uniform Space</h2>
+                            <em style="font-size: 20px; border-radius: 4px; border: solid #9E9E9E; border-width: 1px; font-weight: bold;padding: 1px 5px 1px 5px;background-color: #F6BEFF;margin-left: 0;">Arxiv</em>
+                            
+                            
+                            
+                            <br><br>
+                            
+                                <image src="assets/teaser.png" class="img-responsive" alt="overview" style="width: 99%; margin-left: auto; margin-right: auto;">
+                            
+                            <p class="text-justify" style="font-size: smaller; font-style: italic; padding-top: 8px; width: 98%; margin-left: auto; margin-right: auto;">
+                                Qualitative results demonstrating the two modes supported by the proposed X2HDR.
+                                Top: text-to-HDR generation, visualized with exposure-adjusted views at EV+4 and EV-4, highlighting synthesized detail across highlights and shadows.
+                                Bottom: single-image RAW-to-HDR reconstruction. From over-exposed and under-exposed RAW inputs, X2HDR recovers HDR content by inpainting saturated regions and denoising/restoring detail in low-light areas.
+
+                            <h3>
+                                Abstract
+                                <hr id="myhr">
+                            </h3>
+            
+                            <p class="text-justify" style="width: 98%; margin-left: auto; margin-right: auto;">
+                                High dynamic range (HDR) displays and formats are becoming increasingly prevalent, yet state-of-the-art image generators (e.g., Stable Diffusion and FLUX) typically remain limited to low dynamic range (LDR) output due to the lack of large-scale HDR training data.
+                                <br>
+                                In this work, we show that existing pretrained diffusion models can be easily adapted to HDR generation without retraining from scratch. A key challenge is that HDR images are natively represented in linear RGB, whose intensity and color statistics differ substantially from those of sRGB-encoded LDR images. This gap, however, can be effectively bridged by converting HDR inputs into perceptually uniform encodings such as PU21 or PQ, yielding distributions closer to the LDR pretraining domain. Empirically, we find that variational autoencoders (VAEs) trained on LDR data reconstruct PU21-encoded HDR inputs with fidelity comparable to LDR reconstructions, whereas linear RGB inputs cause severe degradations.
+                                <br>
+                                Motivated by this finding, we describe a lightweight adaptation strategy that freezes the VAE and finetunes only the denoiser via low-rank adaptation in a perceptually uniform space. This results in a unified computational method that supports both text-to-HDR synthesis and single-image RAW-to-HDR reconstruction.
+                                <br>
+                                Experiments demonstrate that our perceptually encoded adaptation consistently improves image quality, text–image alignment, effective dynamic range, and HDR fidelity relative to prior exposure-generation methods.
+                            </p>
+
+                            <h3>
+                                How does it work?
+                                <hr id="myhr">
+                            </h3>
+            
+                            <p class="text-justify" style="width: 98%; margin-left: auto; margin-right: auto;">
+                                X2HDR is a unified computational method for HDR image synthesis and reconstruction that adapts existing text-to-image (T2I) models with minimal modifications. The core challenge is a representation mismatch: pretrained models are trained on display-encoded LDR images, while HDR and RAW data are natively expressed in a linear radiometric space with dramatically different intensity statistics. X2HDR bridges this gap by operating entirely in a perceptually uniform domain.
+                            </p>
+                            
+                            <br>
+                            
+                            <h4 style="width: 98%; margin-left: auto; margin-right: auto;">
+                                Perceptually Uniform Encoding
+                            </h4>
+                            
+                            <p class="text-justify" style="width: 98%; margin-left: auto; margin-right: auto;">
+                                To align HDR data with the LDR pretraining domain, we transform images into a perceptually uniform encoding (e.g., PU21 or PQ). This mapping compresses extreme highlights and reallocates precision toward shadows, reshaping HDR luminance statistics to better match natural image distributions.
+                            </p>
+                            
+                            <!-- Encoding function figure (Appendix) -->
+                            <img src="assets/encoding_function.png" class="img-responsive"
+                                 style="width: 55%; margin-left: auto; margin-right: auto;">
+                            <p class="text-justify"
+                               style="font-size: smaller; font-style: italic; padding-top: 6px; width: 50%; margin-left: auto; margin-right: auto;">
+                                Encoding functions (linear, PQ, and PU21) mapping BT.2100-range linear luminance to display-encoded values (with log-scaled x-axis).
+                            </p>
+                            
+                            <p class="text-justify" style="width: 98%; margin-left: auto; margin-right: auto;">
+                                This encoding allows VAEs pretrained on LDR data to reconstruct HDR inputs with fidelity comparable to standard LDR reconstructions, whereas linear HDR inputs induce severe artifacts. Consequently, the VAE can remain frozen, significantly simplifying the adaptation process.
+                            </p>
+                            
+                            <br>
+                            
+                            <h4 style="width: 98%; margin-left: auto; margin-right: auto;">
+                                Lightweight Diffusion Adaptation
+                            </h4>
+                            
+                            <p class="text-justify" style="width: 98%; margin-left: auto; margin-right: auto;">
+                                We acquire HDR capability by finetuning only the diffusion denoiser using parameter-efficient LoRA adapters. This strategy allows the model to learn HDR-specific structures with minimal trainable parameters, keeping the base model intact and the inference architecture unchanged.
+                            </p>
+
+                            <!-- Overall pipeline -->
+                            <img src="assets/pipeline.png" class="img-responsive"
+                            style="width: 60%; margin-left: auto; margin-right: auto;">
+                            <p class="text-justify"
+                                style="text-align: center; font-size: smaller; font-style: italic; padding-top: 6px; width: 96%; margin-left: auto; margin-right: auto;">
+                                Overview of the proposed X2HDR framework.
+                            </p>
+                            
+                            <br>
+                            
+                            <h4 style="width: 98%; margin-left: auto; margin-right: auto;">
+                                Applications
+                            </h4>
+                            
+                            <p class="text-justify" style="width: 98%; margin-left: auto; margin-right: auto;">
+                                Within the same framework, our method supports (but is not limited to) two tasks:
+                            </p>
+                            
+                            <ul style="width: 94%; margin-left: auto; margin-right: auto;">
+                                <li>
+                                    <b>Text-to-HDR generation</b>: Producing high-fidelity HDR images directly from text prompts with a wide effective dynamic range and smooth gradations in both highlights and shadows.
+                                </li>
+                                <li>
+                                    <b>RAW-to-HDR reconstruction</b>: Transforming a single RAW capture into an HDR output by leveraging generative priors to hallucinate missing content in saturated regions while suppressing noise in underexposed areas.
+                                </li>
+                            </ul>                            
+                            
+                            <br>
+                            
+                            <p class="text-justify" style="width: 98%; margin-left: auto; margin-right: auto;">
+                                By operating in a perceptually uniform domain, X2HDR avoids the architectural complexity and fusion artifacts of traditional bracket-based HDR pipelines, offering a deployment-friendly solution for high-quality HDR content creation.
+                            </p>
+                            
+
+                            
+                        </td>
+
+                        <!-- Right column -->
+                        <td style="padding-top: 4px; vertical-align: top; padding-left: 12px; padding-right: 12px;">
+                            
+                            
+                            <h3>
+                                Links
+                                <hr id="myhr">
+                            </h3>
+                            <div>
+                            
+                            
+                                <!-- <a class="links3" style="font-size: small;" href="https://arxiv.org/abs/2505.23740"><i class="far fa-file-pdf"></i> paper</a> -->
+                            
+                                <a class="links3" style="font-size: small;" href="https://github.com/X2HDR/X2HDR"><i class="fab fa-github"></i> code</a>
+                            
+                            </div>
+                            
+                            <div style="padding-bottom: 2px;">
+                                <div>
+                                <h3> Supplemental Webpage <hr id="myhr"> </h3>
+                                <p class="text-justify" style="width: 98%; margin-left: auto; margin-right: auto;">
+                                    Our <a class="links3" href="supplemental/index.html">supplementary webpage</a> accompanies the "X2HDR" paper and presents HDR images generated by different methods, including text-to-HDR synthesis, RAW-to-HDR reconstruction, results from the ablation and perceptual studies.
+                                </p>                                    
+                                </div>
+                            </div>
+                            
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+              </tr>
+  
+          </table>
+        </td>
+      </tr>
+    </table>
+  
+    
+    <br><br><br>
+
+<script>
+    function copyBibtex(button) {
+        const text = document.getElementById('bibtex').innerText;
+        const header = document.getElementById('bibtex-header');
+        navigator.clipboard.writeText(text).then(() => {
+            // Change button text
+            const originalText = button.innerText;
+            button.innerText = 'copied!';
+
+            // Add the highlight class
+            header.classList.add('copied');
+
+            // Restore everything after 3 seconds
+            setTimeout(() => {
+            button.innerText = originalText;
+            header.classList.remove('copied');
+            }, 2500);
+        });
+    }
+</script>
+  </body>
+
+</html>
+

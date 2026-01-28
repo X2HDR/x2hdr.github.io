@@ -1,0 +1,2985 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perceptual Study: Text-to-HDR</title>
+    <style>
+        :root {
+            --primary-color: #374151;
+            --secondary-color: #6b7280;
+            --accent-color: #111827;
+            --success-color: #059669;
+            --warning-color: #d97706;
+            --danger-color: #dc2626;
+            --background-color: #f9fafb;
+            --card-background: #ffffff;
+            --text-primary: #111827;
+            --text-secondary: #6b7280;
+            --border-color: #e5e7eb;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --radius-sm: 0.375rem;
+            --radius-md: 0.5rem;
+            --radius-lg: 0.75rem;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: var(--background-color);
+            min-height: 100vh;
+            padding: 1rem 0.5rem;  /* 从 2rem 1rem 减少到 1rem 0.5rem */
+            color: var(--text-primary);
+        }
+
+        .container {
+            max-width: 100%;  /* 从 1400px 改为 100% */
+            margin: 0 auto;
+            padding: 0 0.5rem;  /* 新增少量内边距 */
+        }
+
+        .header {
+            position: relative; /* 为绝对定位的 Home 按钮提供参考 */
+            background: var(--card-background);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem 1rem;  /* 从 2rem 减少到 1.5rem 1rem */
+            margin-bottom: 1rem;  /* 从 2rem 减少到 1rem */
+            box-shadow: var(--shadow-lg);
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .controls {
+            background: var(--card-background);
+            border-radius: var(--radius-lg);
+            padding: 1rem;  /* 从 1.5rem 减少到 1rem */
+            margin-bottom: 1rem;  /* 从 2rem 减少到 1rem */
+            box-shadow: var(--shadow-md);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .control-group label {
+            font-weight: 500;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .control-input {
+            padding: 0.5rem 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+
+        .control-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgb(37 99 235 / 0.1);
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-color);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary-color);
+        }
+
+        .stats {
+            display: flex;
+            gap: 0.5rem;  /* 从 1rem 减少到 0.5rem */
+            margin-bottom: 1rem;  /* 从 2rem 减少到 1rem */
+        }
+
+        .stat-card {
+            background: var(--card-background);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            flex: 1;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .stat-card .number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .stat-card .label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .comparison-container {
+            background: var(--card-background);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+            margin: 0;  /* 新增：去除默认边距 */
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+            margin: 0;  /* 新增：去除表格边距 */
+        }
+
+        .method-header {
+            background: var(--primary-color);
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            font-weight: 600;
+            font-size: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .image-row {
+            border-bottom: 1px solid var(--border-color);
+            transition: background-color 0.2s ease;
+        }
+
+        .image-row:hover {
+            background-color: #f8fafc;
+        }
+
+        .image-cell {
+            padding: 0.25rem;
+            text-align: center;
+            vertical-align: top;
+            box-sizing: border-box;
+        }
+
+        .image-container {
+            position: relative;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            background: var(--background-color);
+            transition: all 0.3s ease;
+            max-width: 100%;
+            width: 100%;  /* 新增：确保容器占满可用宽度 */
+        }
+
+        .image-container:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .image-container img {
+            width: 100%;
+            max-width: 100%;
+            object-fit: cover;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            display: block;
+            height: auto;
+            aspect-ratio: 1 / 1;  /* 新增：保持正方形比例 */
+        }
+
+        .image-container img:hover {
+            transform: scale(1.02);
+        }
+
+        /* 质量分数样式 */
+        .quality-scores {
+            background: #f8fafc;
+            padding: 0.5rem;
+            display: flex;
+            gap: 0.5rem;
+            justify-content: space-between;
+            border-top: 1px solid var(--border-color);
+            font-size: 0.75rem;
+        }
+
+        .score-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+        }
+
+        .score-label {
+            color: var(--text-secondary);
+            font-weight: 500;
+            margin-bottom: 0.2rem;
+        }
+
+        .score-value {
+            color: var(--text-primary);
+            font-weight: 700;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            background: white;
+            padding: 0.2rem 0.4rem;
+            border-radius: 0.25rem;
+            border: 1px solid var(--border-color);
+            min-width: 4rem;
+            text-align: center;
+        }
+
+        /* 美化的Tooltip样式 */
+        .prompt-label:hover::after {
+            content: attr(title);
+            position: absolute;
+            bottom: calc(100% + 10px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #1f2937, #374151);
+            color: white;
+            padding: 1rem 1.25rem;
+            border-radius: var(--radius-md);
+            font-size: 0.85rem;
+            font-weight: 400;
+            white-space: normal;
+            word-wrap: break-word;
+            max-width: 350px;
+            min-width: 200px;
+            width: max-content;
+            z-index: 1000;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            line-height: 1.5;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            animation: tooltipFadeIn 0.2s ease-out;
+        }
+
+        .prompt-label:hover::before {
+            content: '';
+            position: absolute;
+            bottom: calc(100% + 4px);
+            left: 50%;
+            transform: translateX(-50%);
+            border: 6px solid transparent;
+            border-top-color: #1f2937;
+            z-index: 1001;
+            animation: tooltipFadeIn 0.2s ease-out;
+        }
+
+        @keyframes tooltipFadeIn {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(5px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        /* 网格布局中的prompt样式 */
+        .grid-item .prompt-label {
+            font-size: 0.75rem;
+            padding: 0.4rem;
+        }
+
+        .grid-item .prompt-number {
+            font-size: 0.65rem;
+            padding: 0.15rem 0.3rem;
+        }
+
+        /* 说明文字块样式 */
+        .description {
+            background: var(--card-background);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem 1rem;
+            margin-bottom: 1rem;
+            box-shadow: var(--shadow-md);
+            text-align: left;
+        }
+
+        .description h3 {
+            color: var(--text-primary);
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+
+        .description p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-bottom: 0.5rem;
+        }
+
+        .description p:last-child {
+            margin-bottom: 0;
+        }
+
+        .description ul {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-left: 1.5rem;
+        }
+
+        .description li {
+            margin-bottom: 0.25rem;
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .description {
+                padding: 1rem 0.5rem;
+                margin-bottom: 0.5rem;
+            }
+
+            .description h3 {
+                font-size: 1.1rem;
+            }
+
+            .description p, .description ul {
+                font-size: 0.9rem;
+            }
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .prompt-label {
+                font-size: 0.7rem;
+                padding: 0.4rem;
+            }
+            
+            .prompt-number {
+                font-size: 0.6rem;
+            }
+            
+            .prompt-label:hover::after {
+                max-width: 280px;
+                min-width: 150px;
+                font-size: 0.8rem;
+                padding: 0.875rem 1rem;
+                bottom: calc(100% + 8px);
+            }
+            
+            .prompt-label:hover::before {
+                bottom: calc(100% + 2px);
+                border-width: 5px;
+            }
+
+            .quality-scores {
+                font-size: 0.7rem;
+                padding: 0.4rem;
+                gap: 0.3rem;
+            }
+
+            .score-value {
+                font-size: 0.7rem;
+                padding: 0.15rem 0.3rem;
+                min-width: 3.5rem;
+            }
+
+            .image-cell {
+                padding: 0.1rem;  /* 移动端进一步减少 padding */
+            }
+        }
+
+        .method-label {
+            padding: 0.5rem;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            background: var(--background-color);
+        }
+
+        /* Home Button Style */
+        .home-btn {
+            position: absolute;
+            left: 1.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: var(--secondary-color);
+            color: white;
+            border-radius: var(--radius-sm);
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+
+        .home-btn:hover {
+            background: var(--primary-color);
+            transform: translateY(-50%) translateX(-2px);
+        }
+
+        @media (max-width: 768px) {
+            .home-btn {
+                position: static;
+                display: inline-flex;
+                margin-bottom: 1rem;
+                transform: none;
+            }
+            
+            .home-btn:hover {
+                transform: translateY(-2px);
+            }
+        }
+
+        /* 新增prompt行样式 */
+        .prompt-row {
+            background: var(--background-color);
+        }
+
+        .prompt-cell {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .prompt-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            background: var(--card-background);
+            padding: 0.75rem;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .prompt-header .prompt-number {
+            background: var(--primary-color);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.8rem;
+            flex-shrink: 0;
+            font-weight: 700;
+        }
+
+        .prompt-header .prompt-text {
+            flex: 1;
+            line-height: 1.4;
+            word-wrap: break-word;
+            font-size: 0.9rem;
+        }
+
+        /* 响应式调整prompt-header */
+        @media (max-width: 768px) {
+            .prompt-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+                padding: 0.6rem;
+            }
+            
+            .prompt-header .prompt-text {
+                font-size: 0.85rem;
+            }
+            
+            .prompt-cell {
+                padding: 0.5rem;
+            }
+        }
+
+        .missing-image {
+            width: 100%;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #f9fafb;
+            border: 2px dashed var(--border-color);
+            color: var(--text-secondary);
+            margin: 0.5rem 0;
+            box-sizing: border-box;
+        }
+
+        .missing-image .icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            opacity: 0.5;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.95);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            position: relative;
+            margin: 5rem auto;
+            width: 768px;
+            height: 768px;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .modal-image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+        }
+
+        .modal-header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
+            color: white;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-info {
+            font-weight: 500;
+        }
+
+        .modal-controls {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .modal-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 0.5rem;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.9rem;
+        }
+
+        .modal-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            transition: color 0.2s ease;
+        }
+
+        .close:hover {
+            color: #ef4444;
+        }
+
+        /* Loading Spinner */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(59, 130, 246, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--primary-color);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            body {
+                padding: 0.5rem 0.25rem;  /* 移动端进一步减少 */
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .stats {
+                flex-direction: column;
+            }
+
+            .image-container img {
+                height: auto;
+            }
+
+            .missing-image {
+                min-height: 150px;
+            }
+
+            .modal-content {
+                width: 90%;
+                height: 90vw;
+                margin: 2rem auto;
+            }
+        }
+
+        /* Image comparison feature */
+        .comparison-mode .image-container {
+            border: 3px solid transparent;
+            cursor: pointer;
+        }
+
+        .comparison-mode .image-container.selected {
+            border-color: var(--text-primary);
+            background: var(--text-primary);
+        }
+
+        .comparison-mode .image-container.selected .prompt-label {
+            background: var(--text-primary);
+        }
+
+        /* Fullscreen styles */
+        .fullscreen {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            max-width: none !important;
+            max-height: none !important;
+            margin: 0 !important;
+            z-index: 1001 !important;
+        }
+
+        .fullscreen .modal-image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        /* 网格布局样式 */
+        .grid-layout {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 0.5rem;  /* 从 1rem 减少到 0.5rem */
+            padding: 0.5rem;  /* 从 1rem 减少到 0.5rem */
+        }
+
+        .grid-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .grid-item .image-container {
+            margin-bottom: 0;
+        }
+
+        /* 隐藏表格布局当使用网格时 */
+        .grid-layout .comparison-table {
+            display: none;
+        }
+
+        /* 网格模式下的响应式 */
+        @media (max-width: 768px) {
+            .grid-container {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 0.25rem;  /* 进一步减少 */
+                padding: 0.25rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .grid-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="../../index.html" class="home-btn">
+                <span>&larr;</span> Back to Home
+            </a>
+            <h1>Perceptual Study: Text-to-HDR Generation</h1>
+            <!-- <p>Comparing 4 different methods across 20 prompts.</p> -->
+        </div>
+
+        <!-- 新增的说明文字块 -->
+        <div class="description">
+            <p>20 HDR images generated by LEDiff, Bracket Diffusion, and our method (SD-1.5 and Flux) for perceptual study.</p>
+            <p>JOD low and high represent 95% confidence interval estimated via bootstrapping.</p>
+        </div>
+
+        <div class="controls">
+            <div class="control-group">
+                <label for="promptFilter">Filter Prompts:</label>
+                <input type="text" id="promptFilter" class="control-input" placeholder="e.g., 1,5,10-15">
+            </div>
+            <div class="control-group">
+                <label for="methodFilter">Show Methods:</label>
+                <select id="methodFilter" class="control-input">
+                    <option value="all">All Methods</option>
+                    <option value="LEDiff">LEDiff</option><option value="Bracket Diffusion">Bracket Diffusion</option><option value="Ours (SD-1.5)">Ours (SD-1.5)</option><option value="Ours (Flux)">Ours (Flux)</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <button class="btn btn-secondary" onclick="resetFilters()">Reset Filters</button>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="number" id="visiblePrompts">20</div>
+                <div class="label">Visible Prompts</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="visibleMethods">4</div>
+                <div class="label">Active Methods</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="totalImages">80</div>
+                <div class="label">Total Images</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="missingImages">0</div>
+                <div class="label">Missing Images</div>
+            </div>
+        </div>
+
+        <div class="comparison-container">
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th class="method-header">LEDiff</th><th class="method-header">Bracket Diffusion</th><th class="method-header">Ours (SD-1.5)</th><th class="method-header">Ours (Flux)</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    
+            <tr class="prompt-row">
+                <td colspan="4" class="prompt-cell">
+                    <div class="prompt-header">
+                        <span class="prompt-number">Example #1</span>
+                        <span class="prompt-text"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr class="image-row">
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="lediff/prompt_1.jpg" alt="LEDiff - Prompt 1" 
+                             onclick="openModal('lediff/prompt_1.jpg', 1, 'LEDiff')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">-3.2731</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">-2.3023</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">-6.6798</span>
+                            </div></div>
+                        <div class="method-label">LEDiff</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="bracket/prompt_1.jpg" alt="Bracket Diffusion - Prompt 1" 
+                             onclick="openModal('bracket/prompt_1.jpg', 1, 'Bracket Diffusion')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">-1.0741</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">-0.9912</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">-1.3771</span>
+                            </div></div>
+                        <div class="method-label">Bracket Diffusion</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours-sd/prompt_1.jpg" alt="Ours (SD-1.5) - Prompt 1" 
+                             onclick="openModal('ours-sd/prompt_1.jpg', 1, 'Ours (SD-1.5)')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">2.11</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">4.02</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">1.42</span>
+                            </div></div>
+                        <div class="method-label">Ours (SD-1.5)</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours-flux/prompt_1.jpg" alt="Ours (Flux) - Prompt 1" 
+                             onclick="openModal('ours-flux/prompt_1.jpg', 1, 'Ours (Flux)')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">2.24</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">4.00</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">1.61</span>
+                            </div></div>
+                        <div class="method-label">Ours (Flux)</div>
+                    </div>
+                </td>
+            </tr>
+            <tr class="prompt-row">
+                <td colspan="4" class="prompt-cell">
+                    <div class="prompt-header">
+                        <span class="prompt-number">Example #2</span>
+                        <span class="prompt-text"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr class="image-row">
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="lediff/prompt_2.jpg" alt="LEDiff - Prompt 2" 
+                             onclick="openModal('lediff/prompt_2.jpg', 2, 'LEDiff')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">-3.0078</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">-2.3044</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">-5.9181</span>
+                            </div></div>
+                        <div class="method-label">LEDiff</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="bracket/prompt_2.jpg" alt="Bracket Diffusion - Prompt 2" 
+                             onclick="openModal('bracket/prompt_2.jpg', 2, 'Bracket Diffusion')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">-1.3176</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">-1.0183</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">-1.9343</span>
+                            </div></div>
+                        <div class="method-label">Bracket Diffusion</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours-sd/prompt_2.jpg" alt="Ours (SD-1.5) - Prompt 2" 
+                             onclick="openModal('ours-sd/prompt_2.jpg', 2, 'Ours (SD-1.5)')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">2.60</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">4.85</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">1.92</span>
+                            </div></div>
+                        <div class="method-label">Ours (SD-1.5)</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours-flux/prompt_2.jpg" alt="Ours (Flux) - Prompt 2" 
+                             onclick="openModal('ours-flux/prompt_2.jpg', 2, 'Ours (Flux)')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">1.72</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">3.44</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">1.21</span>
+                            </div></div>
+                        <div class="method-label">Ours (Flux)</div>
+                    </div>
+                </td>
+            </tr>
+            <tr class="prompt-row">
+                <td colspan="4" class="prompt-cell">
+                    <div class="prompt-header">
+                        <span class="prompt-number">Example #3</span>
+                        <span class="prompt-text"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr class="image-row">
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="lediff/prompt_3.jpg" alt="LEDiff - Prompt 3" 
+                             onclick="openModal('lediff/prompt_3.jpg', 3, 'LEDiff')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">-1.8238</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">-1.3977</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">-2.9100</span>
+                            </div></div>
+                        <div class="method-label">LEDiff</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="bracket/prompt_3.jpg" alt="Bracket Diffusion - Prompt 3" 
+                             onclick="openModal('bracket/prompt_3.jpg', 3, 'Bracket Diffusion')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">0.4620</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">0.9840</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">0.0383</span>
+                            </div></div>
+                        <div class="method-label">Bracket Diffusion</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours-sd/prompt_3.jpg" alt="Ours (SD-1.5) - Prompt 3" 
+                             onclick="openModal('ours-sd/prompt_3.jpg', 3, 'Ours (SD-1.5)')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">-0.0001</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">0.7116</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">-0.5093</span>
+                            </div></div>
+                        <div class="method-label">Ours (SD-1.5)</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours-flux/prompt_3.jpg" alt="Ours (Flux) - Prompt 3" 
+                             onclick="openModal('ours-flux/prompt_3.jpg', 3, 'Ours (Flux)')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">1.36</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">1.94</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">1.01</span>
+                            </div></div>
+                        <div class="method-label">Ours (Flux)</div>
+                    </div>
+                </td>
+            </tr>
+            <tr class="prompt-row">
+                <td colspan="4" class="prompt-cell">
+                    <div class="prompt-header">
+                        <span class="prompt-number">Example #4</span>
+                        <span class="prompt-text"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr class="image-row">
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="lediff/prompt_4.jpg" alt="LEDiff - Prompt 4" 
+                             onclick="openModal('lediff/prompt_4.jpg', 4, 'LEDiff')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">-2.2828</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">-1.8480</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">-3.9671</span>
+                            </div></div>
+                        <div class="method-label">LEDiff</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="bracket/prompt_4.jpg" alt="Bracket Diffusion - Prompt 4" 
+                             onclick="openModal('bracket/prompt_4.jpg', 4, 'Bracket Diffusion')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">-0.4209</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">0.0558</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">-1.0842</span>
+                            </div></div>
+                        <div class="method-label">Bracket Diffusion</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours-sd/prompt_4.jpg" alt="Ours (SD-1.5) - Prompt 4" 
+                             onclick="openModal('ours-sd/prompt_4.jpg', 4, 'Ours (SD-1.5)')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">1.06</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">2.35</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">0.5849</span>
+                            </div></div>
+                        <div class="method-label">Ours (SD-1.5)</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours-flux/prompt_4.jpg" alt="Ours (Flux) - Prompt 4" 
+                             onclick="openModal('ours-flux/prompt_4.jpg', 4, 'Ours (Flux)')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">1.64</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">2.87</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">1.31</span>
+                            </div></div>
+                        <div class="method-label">Ours (Flux)</div>
+                    </div>
+                </td>
+            </tr>
+            <tr class="prompt-row">
+                <td colspan="4" class="prompt-cell">
+                    <div class="prompt-header">
+                        <span class="prompt-number">Example #5</span>
+                        <span class="prompt-text"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr class="image-row">
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="lediff/prompt_5.jpg" alt="LEDiff - Prompt 5" 
+                             onclick="openModal('lediff/prompt_5.jpg', 5, 'LEDiff')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">-3.4691</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">-2.9200</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">-4.6529</span>
+                            </div></div>
+                        <div class="method-label">LEDiff</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="bracket/prompt_5.jpg" alt="Bracket Diffusion - Prompt 5" 
+                             onclick="openModal('bracket/prompt_5.jpg', 5, 'Bracket Diffusion')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">-0.2826</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">0.0159</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">-0.9833</span>
+                            </div></div>
+                        <div class="method-label">Bracket Diffusion</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours-sd/prompt_5.jpg" alt="Ours (SD-1.5) - Prompt 5" 
+                             onclick="openModal('ours-sd/prompt_5.jpg', 5, 'Ours (SD-1.5)')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">1.01</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">2.18</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">0.2288</span>
+                            </div></div>
+                        <div class="method-label">Ours (SD-1.5)</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours-flux/prompt_5.jpg" alt="Ours (Flux) - Prompt 5" 
+                             onclick="openModal('ours-flux/prompt_5.jpg', 5, 'Ours (Flux)')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">2.75</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">4.21</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">2.18</span>
+                            </div></div>
+                        <div class="method-label">Ours (Flux)</div>
+                    </div>
+                </td>
+            </tr>
+            <tr class="prompt-row">
+                <td colspan="4" class="prompt-cell">
+                    <div class="prompt-header">
+                        <span class="prompt-number">Example #6</span>
+                        <span class="prompt-text"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr class="image-row">
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="lediff/prompt_6.jpg" alt="LEDiff - Prompt 6" 
+                             onclick="openModal('lediff/prompt_6.jpg', 6, 'LEDiff')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">-3.8732</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">-2.4690</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">-14.6794</span>
+                            </div></div>
+                        <div class="method-label">LEDiff</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="bracket/prompt_6.jpg" alt="Bracket Diffusion - Prompt 6" 
+                             onclick="openModal('bracket/prompt_6.jpg', 6, 'Bracket Diffusion')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">-1.4020</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">-0.9609</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">-4.8931</span>
+                            </div></div>
+                        <div class="method-label">Bracket Diffusion</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours-sd/prompt_6.jpg" alt="Ours (SD-1.5) - Prompt 6" 
+                             onclick="openModal('ours-sd/prompt_6.jpg', 6, 'Ours (SD-1.5)')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">1.80</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">4.89</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">1.15</span>
+                            </div></div>
+                        <div class="method-label">Ours (SD-1.5)</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours-flux/prompt_6.jpg" alt="Ours (Flux) - Prompt 6" 
+                             onclick="openModal('ours-flux/prompt_6.jpg', 6, 'Ours (Flux)')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">3.48</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">14.68</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">2.23</span>
+                            </div></div>
+                        <div class="method-label">Ours (Flux)</div>
+                    </div>
+                </td>
+            </tr>
+            <tr class="prompt-row">
+                <td colspan="4" class="prompt-cell">
+                    <div class="prompt-header">
+                        <span class="prompt-number">Example #7</span>
+                        <span class="prompt-text"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr class="image-row">
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="lediff/prompt_7.jpg" alt="LEDiff - Prompt 7" 
+                             onclick="openModal('lediff/prompt_7.jpg', 7, 'LEDiff')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">-2.5772</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">-1.6655</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">-4.9855</span>
+                            </div></div>
+                        <div class="method-label">LEDiff</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="bracket/prompt_7.jpg" alt="Bracket Diffusion - Prompt 7" 
+                             onclick="openModal('bracket/prompt_7.jpg', 7, 'Bracket Diffusion')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">-0.5425</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">-0.0001</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">-1.0690</span>
+                            </div></div>
+                        <div class="method-label">Bracket Diffusion</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours-sd/prompt_7.jpg" alt="Ours (SD-1.5) - Prompt 7" 
+                             onclick="openModal('ours-sd/prompt_7.jpg', 7, 'Ours (SD-1.5)')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">-0.0133</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">0.4867</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">-0.4954</span>
+                            </div></div>
+                        <div class="method-label">Ours (SD-1.5)</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours-flux/prompt_7.jpg" alt="Ours (Flux) - Prompt 7" 
+                             onclick="openModal('ours-flux/prompt_7.jpg', 7, 'Ours (Flux)')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">3.13</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">4.99</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">2.58</span>
+                            </div></div>
+                        <div class="method-label">Ours (Flux)</div>
+                    </div>
+                </td>
+            </tr>
+            <tr class="prompt-row">
+                <td colspan="4" class="prompt-cell">
+                    <div class="prompt-header">
+                        <span class="prompt-number">Example #8</span>
+                        <span class="prompt-text"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr class="image-row">
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="lediff/prompt_8.jpg" alt="LEDiff - Prompt 8" 
+                             onclick="openModal('lediff/prompt_8.jpg', 8, 'LEDiff')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">-2.2464</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">-1.7432</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">-3.7331</span>
+                            </div></div>
+                        <div class="method-label">LEDiff</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="bracket/prompt_8.jpg" alt="Bracket Diffusion - Prompt 8" 
+                             onclick="openModal('bracket/prompt_8.jpg', 8, 'Bracket Diffusion')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">-0.5462</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">-0.0325</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">-1.1960</span>
+                            </div></div>
+                        <div class="method-label">Bracket Diffusion</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours-sd/prompt_8.jpg" alt="Ours (SD-1.5) - Prompt 8" 
+                             onclick="openModal('ours-sd/prompt_8.jpg', 8, 'Ours (SD-1.5)')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">1.04</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">2.03</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">0.5578</span>
+                            </div></div>
+                        <div class="method-label">Ours (SD-1.5)</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours-flux/prompt_8.jpg" alt="Ours (Flux) - Prompt 8" 
+                             onclick="openModal('ours-flux/prompt_8.jpg', 8, 'Ours (Flux)')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">1.75</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">2.76</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">1.26</span>
+                            </div></div>
+                        <div class="method-label">Ours (Flux)</div>
+                    </div>
+                </td>
+            </tr>
+            <tr class="prompt-row">
+                <td colspan="4" class="prompt-cell">
+                    <div class="prompt-header">
+                        <span class="prompt-number">Example #9</span>
+                        <span class="prompt-text"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr class="image-row">
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="lediff/prompt_9.jpg" alt="LEDiff - Prompt 9" 
+                             onclick="openModal('lediff/prompt_9.jpg', 9, 'LEDiff')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">-3.1645</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">-2.2476</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">-13.4082</span>
+                            </div></div>
+                        <div class="method-label">LEDiff</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="bracket/prompt_9.jpg" alt="Bracket Diffusion - Prompt 9" 
+                             onclick="openModal('bracket/prompt_9.jpg', 9, 'Bracket Diffusion')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">-1.5598</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">-0.9891</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">-4.4694</span>
+                            </div></div>
+                        <div class="method-label">Bracket Diffusion</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours-sd/prompt_9.jpg" alt="Ours (SD-1.5) - Prompt 9" 
+                             onclick="openModal('ours-sd/prompt_9.jpg', 9, 'Ours (SD-1.5)')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">3.22</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">13.41</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">2.28</span>
+                            </div></div>
+                        <div class="method-label">Ours (SD-1.5)</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours-flux/prompt_9.jpg" alt="Ours (Flux) - Prompt 9" 
+                             onclick="openModal('ours-flux/prompt_9.jpg', 9, 'Ours (Flux)')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">1.51</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">4.47</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">0.9696</span>
+                            </div></div>
+                        <div class="method-label">Ours (Flux)</div>
+                    </div>
+                </td>
+            </tr>
+            <tr class="prompt-row">
+                <td colspan="4" class="prompt-cell">
+                    <div class="prompt-header">
+                        <span class="prompt-number">Example #10</span>
+                        <span class="prompt-text"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr class="image-row">
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="lediff/prompt_10.jpg" alt="LEDiff - Prompt 10" 
+                             onclick="openModal('lediff/prompt_10.jpg', 10, 'LEDiff')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">-2.6579</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">-2.1829</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">-4.9901</span>
+                            </div></div>
+                        <div class="method-label">LEDiff</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="bracket/prompt_10.jpg" alt="Bracket Diffusion - Prompt 10" 
+                             onclick="openModal('bracket/prompt_10.jpg', 10, 'Bracket Diffusion')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">-0.7444</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">-0.2361</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">-1.8678</span>
+                            </div></div>
+                        <div class="method-label">Bracket Diffusion</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours-sd/prompt_10.jpg" alt="Ours (SD-1.5) - Prompt 10" 
+                             onclick="openModal('ours-sd/prompt_10.jpg', 10, 'Ours (SD-1.5)')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">1.20</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">2.59</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">1.02</span>
+                            </div></div>
+                        <div class="method-label">Ours (SD-1.5)</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours-flux/prompt_10.jpg" alt="Ours (Flux) - Prompt 10" 
+                             onclick="openModal('ours-flux/prompt_10.jpg', 10, 'Ours (Flux)')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">2.21</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">4.54</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">1.47</span>
+                            </div></div>
+                        <div class="method-label">Ours (Flux)</div>
+                    </div>
+                </td>
+            </tr>
+            <tr class="prompt-row">
+                <td colspan="4" class="prompt-cell">
+                    <div class="prompt-header">
+                        <span class="prompt-number">Example #11</span>
+                        <span class="prompt-text"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr class="image-row">
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="lediff/prompt_11.jpg" alt="LEDiff - Prompt 11" 
+                             onclick="openModal('lediff/prompt_11.jpg', 11, 'LEDiff')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">-1.6879</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">-1.3112</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">-2.6681</span>
+                            </div></div>
+                        <div class="method-label">LEDiff</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="bracket/prompt_11.jpg" alt="Bracket Diffusion - Prompt 11" 
+                             onclick="openModal('bracket/prompt_11.jpg', 11, 'Bracket Diffusion')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">-0.2906</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">0.3464</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">-0.8561</span>
+                            </div></div>
+                        <div class="method-label">Bracket Diffusion</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours-sd/prompt_11.jpg" alt="Ours (SD-1.5) - Prompt 11" 
+                             onclick="openModal('ours-sd/prompt_11.jpg', 11, 'Ours (SD-1.5)')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">1.31</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">1.97</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">0.8637</span>
+                            </div></div>
+                        <div class="method-label">Ours (SD-1.5)</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours-flux/prompt_11.jpg" alt="Ours (Flux) - Prompt 11" 
+                             onclick="openModal('ours-flux/prompt_11.jpg', 11, 'Ours (Flux)')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">0.6689</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">1.21</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">0.2321</span>
+                            </div></div>
+                        <div class="method-label">Ours (Flux)</div>
+                    </div>
+                </td>
+            </tr>
+            <tr class="prompt-row">
+                <td colspan="4" class="prompt-cell">
+                    <div class="prompt-header">
+                        <span class="prompt-number">Example #12</span>
+                        <span class="prompt-text"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr class="image-row">
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="lediff/prompt_12.jpg" alt="LEDiff - Prompt 12" 
+                             onclick="openModal('lediff/prompt_12.jpg', 12, 'LEDiff')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">-1.1237</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">-0.6322</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">-1.8798</span>
+                            </div></div>
+                        <div class="method-label">LEDiff</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="bracket/prompt_12.jpg" alt="Bracket Diffusion - Prompt 12" 
+                             onclick="openModal('bracket/prompt_12.jpg', 12, 'Bracket Diffusion')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">-0.6119</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">-0.2555</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">-1.1322</span>
+                            </div></div>
+                        <div class="method-label">Bracket Diffusion</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours-sd/prompt_12.jpg" alt="Ours (SD-1.5) - Prompt 12" 
+                             onclick="openModal('ours-sd/prompt_12.jpg', 12, 'Ours (SD-1.5)')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">0.3673</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">1.11</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">-0.2155</span>
+                            </div></div>
+                        <div class="method-label">Ours (SD-1.5)</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours-flux/prompt_12.jpg" alt="Ours (Flux) - Prompt 12" 
+                             onclick="openModal('ours-flux/prompt_12.jpg', 12, 'Ours (Flux)')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">1.37</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">1.91</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">1.01</span>
+                            </div></div>
+                        <div class="method-label">Ours (Flux)</div>
+                    </div>
+                </td>
+            </tr>
+            <tr class="prompt-row">
+                <td colspan="4" class="prompt-cell">
+                    <div class="prompt-header">
+                        <span class="prompt-number">Example #13</span>
+                        <span class="prompt-text"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr class="image-row">
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="lediff/prompt_13.jpg" alt="LEDiff - Prompt 13" 
+                             onclick="openModal('lediff/prompt_13.jpg', 13, 'LEDiff')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">-3.6196</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">-3.2563</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">-13.2434</span>
+                            </div></div>
+                        <div class="method-label">LEDiff</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="bracket/prompt_13.jpg" alt="Bracket Diffusion - Prompt 13" 
+                             onclick="openModal('bracket/prompt_13.jpg', 13, 'Bracket Diffusion')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">-2.9341</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">-2.1331</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">-4.4334</span>
+                            </div></div>
+                        <div class="method-label">Bracket Diffusion</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours-sd/prompt_13.jpg" alt="Ours (SD-1.5) - Prompt 13" 
+                             onclick="openModal('ours-sd/prompt_13.jpg', 13, 'Ours (SD-1.5)')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">1.14</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">4.41</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">0.9632</span>
+                            </div></div>
+                        <div class="method-label">Ours (SD-1.5)</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours-flux/prompt_13.jpg" alt="Ours (Flux) - Prompt 13" 
+                             onclick="openModal('ours-flux/prompt_13.jpg', 13, 'Ours (Flux)')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">5.42</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">13.24</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">4.56</span>
+                            </div></div>
+                        <div class="method-label">Ours (Flux)</div>
+                    </div>
+                </td>
+            </tr>
+            <tr class="prompt-row">
+                <td colspan="4" class="prompt-cell">
+                    <div class="prompt-header">
+                        <span class="prompt-number">Example #14</span>
+                        <span class="prompt-text"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr class="image-row">
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="lediff/prompt_14.jpg" alt="LEDiff - Prompt 14" 
+                             onclick="openModal('lediff/prompt_14.jpg', 14, 'LEDiff')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">-5.3000</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">-4.4492</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">-13.5656</span>
+                            </div></div>
+                        <div class="method-label">LEDiff</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="bracket/prompt_14.jpg" alt="Bracket Diffusion - Prompt 14" 
+                             onclick="openModal('bracket/prompt_14.jpg', 14, 'Bracket Diffusion')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">-1.1233</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">-0.9319</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">-4.5219</span>
+                            </div></div>
+                        <div class="method-label">Bracket Diffusion</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours-sd/prompt_14.jpg" alt="Ours (SD-1.5) - Prompt 14" 
+                             onclick="openModal('ours-sd/prompt_14.jpg', 14, 'Ours (SD-1.5)')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">2.83</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">4.52</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">2.04</span>
+                            </div></div>
+                        <div class="method-label">Ours (SD-1.5)</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours-flux/prompt_14.jpg" alt="Ours (Flux) - Prompt 14" 
+                             onclick="openModal('ours-flux/prompt_14.jpg', 14, 'Ours (Flux)')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">3.60</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">13.57</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">3.24</span>
+                            </div></div>
+                        <div class="method-label">Ours (Flux)</div>
+                    </div>
+                </td>
+            </tr>
+            <tr class="prompt-row">
+                <td colspan="4" class="prompt-cell">
+                    <div class="prompt-header">
+                        <span class="prompt-number">Example #15</span>
+                        <span class="prompt-text"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr class="image-row">
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="lediff/prompt_15.jpg" alt="LEDiff - Prompt 15" 
+                             onclick="openModal('lediff/prompt_15.jpg', 15, 'LEDiff')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">-3.0676</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">-2.2057</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">-5.1065</span>
+                            </div></div>
+                        <div class="method-label">LEDiff</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="bracket/prompt_15.jpg" alt="Bracket Diffusion - Prompt 15" 
+                             onclick="openModal('bracket/prompt_15.jpg', 15, 'Bracket Diffusion')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">0.0926</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">0.4099</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">-0.3459</span>
+                            </div></div>
+                        <div class="method-label">Bracket Diffusion</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours-sd/prompt_15.jpg" alt="Ours (SD-1.5) - Prompt 15" 
+                             onclick="openModal('ours-sd/prompt_15.jpg', 15, 'Ours (SD-1.5)')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">-0.3706</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">0.1015</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">-0.9105</span>
+                            </div></div>
+                        <div class="method-label">Ours (SD-1.5)</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours-flux/prompt_15.jpg" alt="Ours (Flux) - Prompt 15" 
+                             onclick="openModal('ours-flux/prompt_15.jpg', 15, 'Ours (Flux)')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">3.35</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">5.11</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">2.86</span>
+                            </div></div>
+                        <div class="method-label">Ours (Flux)</div>
+                    </div>
+                </td>
+            </tr>
+            <tr class="prompt-row">
+                <td colspan="4" class="prompt-cell">
+                    <div class="prompt-header">
+                        <span class="prompt-number">Example #16</span>
+                        <span class="prompt-text"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr class="image-row">
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="lediff/prompt_16.jpg" alt="LEDiff - Prompt 16" 
+                             onclick="openModal('lediff/prompt_16.jpg', 16, 'LEDiff')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">-1.4517</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">-0.9647</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">-2.1647</span>
+                            </div></div>
+                        <div class="method-label">LEDiff</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="bracket/prompt_16.jpg" alt="Bracket Diffusion - Prompt 16" 
+                             onclick="openModal('bracket/prompt_16.jpg', 16, 'Bracket Diffusion')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">-0.0838</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">0.3596</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">-0.6069</span>
+                            </div></div>
+                        <div class="method-label">Bracket Diffusion</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours-sd/prompt_16.jpg" alt="Ours (SD-1.5) - Prompt 16" 
+                             onclick="openModal('ours-sd/prompt_16.jpg', 16, 'Ours (SD-1.5)')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">0.5629</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">1.40</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">-0.1197</span>
+                            </div></div>
+                        <div class="method-label">Ours (SD-1.5)</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours-flux/prompt_16.jpg" alt="Ours (Flux) - Prompt 16" 
+                             onclick="openModal('ours-flux/prompt_16.jpg', 16, 'Ours (Flux)')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">0.9725</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">1.47</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">0.5780</span>
+                            </div></div>
+                        <div class="method-label">Ours (Flux)</div>
+                    </div>
+                </td>
+            </tr>
+            <tr class="prompt-row">
+                <td colspan="4" class="prompt-cell">
+                    <div class="prompt-header">
+                        <span class="prompt-number">Example #17</span>
+                        <span class="prompt-text"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr class="image-row">
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="lediff/prompt_17.jpg" alt="LEDiff - Prompt 17" 
+                             onclick="openModal('lediff/prompt_17.jpg', 17, 'LEDiff')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">-1.5118</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">-1.0565</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">-2.2416</span>
+                            </div></div>
+                        <div class="method-label">LEDiff</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="bracket/prompt_17.jpg" alt="Bracket Diffusion - Prompt 17" 
+                             onclick="openModal('bracket/prompt_17.jpg', 17, 'Bracket Diffusion')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">-0.8955</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">-0.5245</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">-1.5947</span>
+                            </div></div>
+                        <div class="method-label">Bracket Diffusion</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours-sd/prompt_17.jpg" alt="Ours (SD-1.5) - Prompt 17" 
+                             onclick="openModal('ours-sd/prompt_17.jpg', 17, 'Ours (SD-1.5)')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">0.8772</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">1.82</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">0.3019</span>
+                            </div></div>
+                        <div class="method-label">Ours (SD-1.5)</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours-flux/prompt_17.jpg" alt="Ours (Flux) - Prompt 17" 
+                             onclick="openModal('ours-flux/prompt_17.jpg', 17, 'Ours (Flux)')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">1.53</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">2.12</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">1.18</span>
+                            </div></div>
+                        <div class="method-label">Ours (Flux)</div>
+                    </div>
+                </td>
+            </tr>
+            <tr class="prompt-row">
+                <td colspan="4" class="prompt-cell">
+                    <div class="prompt-header">
+                        <span class="prompt-number">Example #18</span>
+                        <span class="prompt-text"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr class="image-row">
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="lediff/prompt_18.jpg" alt="LEDiff - Prompt 18" 
+                             onclick="openModal('lediff/prompt_18.jpg', 18, 'LEDiff')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">-2.7641</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">-2.0010</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">-4.3768</span>
+                            </div></div>
+                        <div class="method-label">LEDiff</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="bracket/prompt_18.jpg" alt="Bracket Diffusion - Prompt 18" 
+                             onclick="openModal('bracket/prompt_18.jpg', 18, 'Bracket Diffusion')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">-0.1909</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">0.4891</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">-0.8987</span>
+                            </div></div>
+                        <div class="method-label">Bracket Diffusion</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours-sd/prompt_18.jpg" alt="Ours (SD-1.5) - Prompt 18" 
+                             onclick="openModal('ours-sd/prompt_18.jpg', 18, 'Ours (SD-1.5)')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">0.1909</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">0.7377</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">-0.3101</span>
+                            </div></div>
+                        <div class="method-label">Ours (SD-1.5)</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours-flux/prompt_18.jpg" alt="Ours (Flux) - Prompt 18" 
+                             onclick="openModal('ours-flux/prompt_18.jpg', 18, 'Ours (Flux)')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">2.76</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">4.38</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">1.96</span>
+                            </div></div>
+                        <div class="method-label">Ours (Flux)</div>
+                    </div>
+                </td>
+            </tr>
+            <tr class="prompt-row">
+                <td colspan="4" class="prompt-cell">
+                    <div class="prompt-header">
+                        <span class="prompt-number">Example #19</span>
+                        <span class="prompt-text"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr class="image-row">
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="lediff/prompt_19.jpg" alt="LEDiff - Prompt 19" 
+                             onclick="openModal('lediff/prompt_19.jpg', 19, 'LEDiff')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">-2.1289</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">-1.6984</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">-2.4890</span>
+                            </div></div>
+                        <div class="method-label">LEDiff</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="bracket/prompt_19.jpg" alt="Bracket Diffusion - Prompt 19" 
+                             onclick="openModal('bracket/prompt_19.jpg', 19, 'Bracket Diffusion')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">-1.7321</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">-1.2055</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">-2.0815</span>
+                            </div></div>
+                        <div class="method-label">Bracket Diffusion</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours-sd/prompt_19.jpg" alt="Ours (SD-1.5) - Prompt 19" 
+                             onclick="openModal('ours-sd/prompt_19.jpg', 19, 'Ours (SD-1.5)')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">1.73</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">2.13</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">1.14</span>
+                            </div></div>
+                        <div class="method-label">Ours (SD-1.5)</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours-flux/prompt_19.jpg" alt="Ours (Flux) - Prompt 19" 
+                             onclick="openModal('ours-flux/prompt_19.jpg', 19, 'Ours (Flux)')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">2.13</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">2.49</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">1.86</span>
+                            </div></div>
+                        <div class="method-label">Ours (Flux)</div>
+                    </div>
+                </td>
+            </tr>
+            <tr class="prompt-row">
+                <td colspan="4" class="prompt-cell">
+                    <div class="prompt-header">
+                        <span class="prompt-number">Example #20</span>
+                        <span class="prompt-text"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr class="image-row">
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="lediff/prompt_20.jpg" alt="LEDiff - Prompt 20" 
+                             onclick="openModal('lediff/prompt_20.jpg', 20, 'LEDiff')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">-1.1287</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">-0.7140</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">-1.9705</span>
+                            </div></div>
+                        <div class="method-label">LEDiff</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="bracket/prompt_20.jpg" alt="Bracket Diffusion - Prompt 20" 
+                             onclick="openModal('bracket/prompt_20.jpg', 20, 'Bracket Diffusion')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">-1.0403</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">-0.6372</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">-1.7318</span>
+                            </div></div>
+                        <div class="method-label">Bracket Diffusion</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours-sd/prompt_20.jpg" alt="Ours (SD-1.5) - Prompt 20" 
+                             onclick="openModal('ours-sd/prompt_20.jpg', 20, 'Ours (SD-1.5)')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">0.5004</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">1.39</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">-0.0950</span>
+                            </div></div>
+                        <div class="method-label">Ours (SD-1.5)</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours-flux/prompt_20.jpg" alt="Ours (Flux) - Prompt 20" 
+                             onclick="openModal('ours-flux/prompt_20.jpg', 20, 'Ours (Flux)')" 
+                             loading="lazy">
+                        <div class="quality-scores">
+                            <div class="score-item">
+                                <span class="score-label">JOD</span>
+                                <span class="score-value">1.67</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_high</span>
+                                <span class="score-value">2.46</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">JOD_low</span>
+                                <span class="score-value">1.34</span>
+                            </div></div>
+                        <div class="method-label">Ours (Flux)</div>
+                    </div>
+                </td>
+            </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="imageModal" class="modal">
+        <div class="modal-content" id="modalContent">
+            <div class="modal-header">
+                <div class="modal-info" id="modalInfo"></div>
+                <div class="modal-controls">
+                    <button class="modal-btn" onclick="downloadImage()" title="Download">📥</button>
+                    <button class="modal-btn" onclick="toggleFullscreen()" title="Fullscreen">⛶</button>
+                    <button class="close" onclick="closeModal()">&times;</button>
+                </div>
+            </div>
+            <img class="modal-image" id="modalImage" alt="Full size image">
+        </div>
+    </div>
+
+    <script>
+        let isFullscreen = false;
+        let qualityScores = {"LEDiff": {"jod_low": {"1": -6.67975925166345, "2": -5.91810920187154, "3": -2.90997080450841, "4": -3.96713791181574, "5": -4.65294897735345, "6": -14.67936713079, "7": -4.98551704401508, "8": -3.73312439406782, "9": -13.4082171738629, "10": -4.99011697266193, "11": -2.66814390593728, "12": -1.87979328040965, "13": -13.243381865625, "14": -13.5656361870019, "15": -5.10645910946448, "16": -2.16469279320301, "17": -2.24160317857809, "18": -4.37677780565544, "19": -2.48897140347737, "20": -1.97049489441952}, "jod_high": {"1": -2.30225251271345, "2": -2.30443350789248, "3": -1.39767755814518, "4": -1.84804711493239, "5": -2.92001029225168, "6": -2.46903262187784, "7": -1.66551945003599, "8": -1.74321020251487, "9": -2.24764528102858, "10": -2.18286815176099, "11": -1.311203488376, "12": -0.632187039085217, "13": -3.2563092501159, "14": -4.44916439921905, "15": -2.20565952753897, "16": -0.964699689667204, "17": -1.05649220483584, "18": -2.00101686592034, "19": -1.69840342866896, "20": -0.713992707579855}, "jod": {"1": -3.27314337975212, "2": -3.00784664794013, "3": -1.82380768565582, "4": -2.28282594125633, "5": -3.46908680669468, "6": -3.87320523276501, "7": -2.57721479462697, "8": -2.24643273375765, "9": -3.16451794929073, "10": -2.65785401066975, "11": -1.68794779160637, "12": -1.12366943527312, "13": -3.6196134174479, "14": -5.30001640398911, "15": -3.06761592846161, "16": -1.45167857345946, "17": -1.51181766136516, "18": -2.76406596403702, "19": -2.12891381505744, "20": -1.12874377997481}}, "Bracket Diffusion": {"jod_low": {"1": -1.37707592746324, "2": -1.9342646976334, "3": 0.0383296415476976, "4": -1.08424419026031, "5": -0.983301179039732, "6": -4.89312235305234, "7": -1.06895264369359, "8": -1.1960366242463, "9": -4.46940556827418, "10": -1.86782562827696, "11": -0.856131294461814, "12": -1.13221346218204, "13": -4.43339539900327, "14": -4.52187906016787, "15": -0.345936936353256, "16": -0.606871326193881, "17": -1.59473744535771, "18": -0.898694773212486, "19": -2.08146642016031, "20": -1.73183713917554}, "jod": {"1": -1.07412346985835, "2": -1.31760276848291, "3": 0.461978970201667, "4": -0.420910121185246, "5": -0.282588348452015, "6": -1.40201888913117, "7": -0.542476670195693, "8": -0.546234338962205, "9": -1.55982836101025, "10": -0.744393566389525, "11": -0.290649963574835, "12": -0.611944885811015, "13": -2.93412767530595, "14": -1.12328603192653, "15": 0.0926083415817089, "16": -0.0837574058989974, "17": -0.895534058586841, "18": -0.190879659913986, "19": -1.73212567556181, "20": -1.04032341003141}, "jod_high": {"1": -0.99116031991769, "2": -1.01831692234352, "3": 0.983998022467259, "4": 0.0557668811990029, "5": 0.0159188666801076, "6": -0.960927770477574, "7": -5.650594901775e-05, "8": -0.0325457579559536, "9": -0.989118203163374, "10": -0.236122718839213, "11": 0.34642544259995, "12": -0.25546791879575, "13": -2.13306836490819, "14": -0.931924190434173, "15": 0.409914287230193, "16": 0.359622829644177, "17": -0.524456145866898, "18": 0.48907231779098, "19": -1.20551227698206, "20": -0.637248039386143}}, "Ours (SD-1.5)": {"jod": {"1": 2.10789049321791, "2": 2.60206648591963, "3": -5.33240715416098e-05, "4": 1.05952475272336, "5": 1.00554398955048, "6": 1.79612912021822, "7": -0.013272652932486, "8": 1.03968248603682, "9": 3.21763325540335, "10": 1.19573914693632, "11": 1.30966413696665, "12": 0.36725067120765, "13": 1.13597682801587, "14": 2.82525800529996, "15": -0.370588575316487, "16": 0.562922776864402, "17": 0.877238610144039, "18": 0.190879659913985, "19": 1.72910965872418, "20": 0.500358151974872}, "jod_low": {"1": 1.41897669731153, "2": 1.91612842315558, "3": -0.509264494654227, "4": 0.58493226439681, "5": 0.228801100527845, "6": 1.15191500766517, "7": -0.495397699212621, "8": 0.557792598748485, "9": 2.27958264948174, "10": 1.02242590629383, "11": 0.863671910428731, "12": -0.215480674893197, "13": 0.963204013563635, "14": 2.04439014794401, "15": -0.910496464263701, "16": -0.119725237663752, "17": 0.30192497076746, "18": -0.310108652530213, "19": 1.14407763990431, "20": -0.0950431239216178}, "jod_high": {"1": 4.01757429575828, "2": 4.85429540893757, "3": 0.711557650753508, "4": 2.34538983288259, "5": 2.18268712789497, "6": 4.89312229337116, "7": 0.486683084741184, "8": 2.02703216894601, "9": 13.408216964933, "10": 2.59183323983339, "11": 1.96793427849026, "12": 1.11037669770326, "13": 4.41446041308111, "14": 4.52187885327851, "15": 0.101480804526086, "16": 1.39837638891189, "17": 1.81689750395962, "18": 0.737691043645942, "19": 2.12888633366383, "20": 1.39349451554175}}, "Ours (Flux)": {"jod_high": {"1": 4.00167338860876, "2": 3.443591785403, "3": 1.94257056486302, "4": 2.86742398629079, "5": 4.20803661486182, "6": 14.6793671904713, "7": 4.98569127335988, "8": 2.75863279071206, "9": 4.46940577720416, "10": 4.53735269925324, "11": 1.20611976808145, "12": 1.91482423266761, "13": 13.2433820235963, "14": 13.5656363938912, "15": 5.1064923105306, "16": 1.47118774978234, "17": 2.11930867275435, "18": 4.37623109340289, "19": 2.49327908512135, "20": 2.45673018449061}, "jod_low": {"1": 1.60909392345766, "2": 1.21001279555846, "3": 1.01242437810794, "4": 1.30687655468838, "5": 2.18196185141416, "6": 2.22825573274119, "7": 2.57834679431619, "8": 1.26128271225436, "9": 0.969646433957355, "10": 1.47287191613561, "11": 0.23205121171457, "12": 1.00679053274026, "13": 4.55919736826617, "14": 3.24414539929204, "15": 2.86308079627387, "16": 0.577972537588285, "17": 1.18331700624357, "18": 1.96400338517834, "19": 1.86056438790095, "20": 1.33598818540542}, "jod": {"1": 2.23937635639256, "2": 1.72338293050341, "3": 1.36188203952569, "4": 1.64421130971821, "5": 2.74613116559621, "6": 3.47909500167796, "7": 3.13296411775515, "8": 1.75298458668304, "9": 1.50671305489763, "10": 2.20650843012296, "11": 0.668933618214562, "12": 1.36836364987648, "13": 5.41776426473797, "14": 3.59804443061568, "15": 3.34559616219639, "16": 0.972513202494053, "17": 1.53011310980797, "18": 2.76406596403702, "19": 2.13192983189508, "20": 1.66870903803135}}};
+
+        // Modal functions
+        function openModal(imageSrc, promptNum, methodName) {
+            const modal = document.getElementById('imageModal');
+            const modalImg = document.getElementById('modalImage');
+            const modalInfo = document.getElementById('modalInfo');
+            
+            modal.style.display = 'block';
+            modalImg.src = imageSrc;
+            
+            // 显示分数信息
+            const scores = qualityScores[methodName];
+            const alignmentScore = scores?.alignment?.[promptNum] || 0;
+            const qualityScore = scores?.quality?.[promptNum] || 0;
+            
+            modalInfo.innerHTML = `
+                ${methodName} - Prompt ${promptNum}<br>
+                <small style="opacity: 0.8;">Text Alignment: ${alignmentScore.toFixed(4)} | Image Quality: ${qualityScore.toFixed(4)}</small>
+            `;
+            
+            // Store current image info for download
+            modalImg.dataset.promptNum = promptNum;
+            modalImg.dataset.methodName = methodName;
+        }
+
+        function closeModal() {
+            document.getElementById('imageModal').style.display = 'none';
+            if (isFullscreen) {
+                toggleFullscreen();
+            }
+        }
+
+        function downloadImage() {
+            const modalImg = document.getElementById('modalImage');
+            const link = document.createElement('a');
+            link.download = `${modalImg.dataset.methodName}_prompt_${modalImg.dataset.promptNum}`;
+            link.href = modalImg.src;
+            link.click();
+        }
+
+        function toggleFullscreen() {
+            const modalContent = document.getElementById('modalContent');
+            isFullscreen = !isFullscreen;
+            modalContent.classList.toggle('fullscreen', isFullscreen);
+        }
+
+        // Filtering functions
+        function applyFilters() {
+            const promptFilter = document.getElementById('promptFilter').value;
+            const methodFilter = document.getElementById('methodFilter').value;
+            const container = document.querySelector('.comparison-container');
+            
+            // 检查是否选择了单一方法
+            if (methodFilter !== 'all') {
+                switchToGridLayout(methodFilter, promptFilter);
+            } else {
+                switchToTableLayout(promptFilter);
+            }
+            
+            updateStats();
+        }
+
+        function switchToGridLayout(selectedMethod, promptFilter) {
+            const container = document.querySelector('.comparison-container');
+            container.classList.add('grid-layout');
+            
+            // 创建网格容器
+            let gridContainer = container.querySelector('.grid-container');
+            if (!gridContainer) {
+                gridContainer = document.createElement('div');
+                gridContainer.className = 'grid-container';
+                container.appendChild(gridContainer);
+            }
+            
+            // 清空网格容器
+            gridContainer.innerHTML = '';
+            
+            // 获取选中方法的数据
+            const methodData = {"LEDiff": ["lediff", "jpg"], "Bracket Diffusion": ["bracket", "jpg"], "Ours (SD-1.5)": ["ours-sd", "jpg"], "Ours (Flux)": ["ours-flux", "jpg"]};
+            const methodNames = Object.keys(methodData);
+            const selectedMethodIndex = methodNames.indexOf(selectedMethod);
+            
+            if (selectedMethodIndex === -1) return;
+            
+            // 获取prompts数据
+            const prompts = {"1": "a beautiful sunset at a beach with a palm tree", "2": "a bright living room with sunlight streaming through windows", "3": "a rainy night city with lights reflecting on wet pavement", "4": "A glass of whiskey surrounded by empty glasses in a dimly lit bar", "5": "a photo of the Cambridge University", "6": "A Moroccan riad courtyard at high noon, intricate lattice shadows from wooden screens across zellige tiles and a central fountain", "7": "A metallic red sports car under showroom spotlights with glossy reflections", "8": "A torchlit cavern with glowing embers and deep, dramatic shadows on rock walls", "9": "Northern lights reflecting in a mountain fjord under a clear winter sky", "10": "A steam locomotive at night illuminated by station lamps and drifting smoke", "11": "A glacier ridge at dawn with a sunburst peeking over icy peaks and sparkles", "12": "A sparkler long exposure drawing light trails in the night, vivid bokeh", "13": "A candlelit dinner table with crystal glassware and rich reflections on cutlery", "14": "A crystal chandelier sparkling with prismatic highlights in a grand foyer", "15": "A steaming coffee cup in window light with soft rays and dust motes floating", "16": "A campfire beneath the Milky Way, warm glow against a deep starry sky", "17": "A beach bonfire at night with flying sparks and waves reflecting firelight", "18": "A lantern glowing on fresh snow in a quiet village night, crisp sparkle", "19": "A sailing ship at golden hour with shimmering water and long reflections", "20": "Macro soap bubble with swirling iridescent colors and bright speculars"};
+            const maxPromptNum = Math.max(...Object.keys(prompts).map(Number));
+            
+            // 收集所有符合条件的图片
+            for (let promptNum = 1; promptNum <= maxPromptNum; promptNum++) {
+                // 应用提示过滤器
+                if (promptFilter && !matchesPromptFilter(promptNum, promptFilter)) {
+                    continue;
+                }
+                
+                // 从表格中找到对应的图片单元格
+                const rows = document.querySelectorAll('#tableBody tr');
+                const row = rows[promptNum - 1];
+                if (!row) continue;
+                
+                const cells = row.querySelectorAll('.image-cell');
+                const cell = cells[selectedMethodIndex];
+                if (!cell) continue;
+                
+                // 克隆图片容器
+                const imageContainer = cell.querySelector('.image-container');
+                if (imageContainer) {
+                    const gridItem = document.createElement('div');
+                    gridItem.className = 'grid-item';
+                    
+                    // 克隆并更新prompt信息
+                    const clonedContainer = imageContainer.cloneNode(true);
+                    const promptLabel = clonedContainer.querySelector('.prompt-label');
+                    if (promptLabel && prompts[promptNum]) {
+                        promptLabel.setAttribute('title', prompts[promptNum]);
+                    }
+                    
+                    gridItem.appendChild(clonedContainer);
+                    gridContainer.appendChild(gridItem);
+                }
+            }
+        }
+
+        function switchToTableLayout(promptFilter) {
+            const container = document.querySelector('.comparison-container');
+            container.classList.remove('grid-layout');
+            
+            // 显示表格，隐藏网格
+            const table = container.querySelector('.comparison-table');
+            const gridContainer = container.querySelector('.grid-container');
+            
+            if (table) table.style.display = '';
+            if (gridContainer) gridContainer.style.display = 'none';
+            
+            // 应用原有的表格过滤逻辑，但需要考虑prompt行和图片行
+            const rows = document.querySelectorAll('#tableBody tr');
+            let visiblePrompts = 0;
+            let visibleMethods = new Set();
+
+            // 现在每个prompt有两行：prompt行和图片行
+            for (let i = 0; i < rows.length; i += 2) {
+                const promptRow = rows[i]; // prompt行
+                const imageRow = rows[i + 1]; // 图片行
+                
+                if (!promptRow || !imageRow) continue;
+                
+                const promptNum = Math.floor(i / 2) + 1;
+                let showPrompt = true;
+
+                // Apply prompt filter
+                if (promptFilter) {
+                    showPrompt = matchesPromptFilter(promptNum, promptFilter);
+                }
+
+                // 显示或隐藏prompt行和图片行
+                promptRow.style.display = showPrompt ? '' : 'none';
+                imageRow.style.display = showPrompt ? '' : 'none';
+                
+                if (showPrompt) {
+                    visiblePrompts++;
+                    // 统计可见的方法
+                    const cells = imageRow.querySelectorAll('.image-cell');
+                    cells.forEach((cell, cellIndex) => {
+                        const methodName = Object.keys({"LEDiff": ["lediff", "jpg"], "Bracket Diffusion": ["bracket", "jpg"], "Ours (SD-1.5)": ["ours-sd", "jpg"], "Ours (Flux)": ["ours-flux", "jpg"]})[cellIndex];
+                        visibleMethods.add(methodName);
+                    });
+                }
+            }
+        }
+
+        function updateStats() {
+            const promptFilter = document.getElementById('promptFilter').value;
+            const methodFilter = document.getElementById('methodFilter').value;
+            
+            let visiblePrompts = 0;
+            let visibleMethods = 0;
+            
+            if (methodFilter === 'all') {
+                // 表格模式统计 - 只计算prompt行
+                const visiblePromptRows = document.querySelectorAll('#tableBody tr.prompt-row:not([style*="display: none"])');
+                visiblePrompts = visiblePromptRows.length;
+                visibleMethods = Object.keys({"LEDiff": ["lediff", "jpg"], "Bracket Diffusion": ["bracket", "jpg"], "Ours (SD-1.5)": ["ours-sd", "jpg"], "Ours (Flux)": ["ours-flux", "jpg"]}).length;
+            } else {
+                // 网格模式统计
+                const gridItems = document.querySelectorAll('.grid-container .grid-item');
+                visiblePrompts = gridItems.length;
+                visibleMethods = 1;
+            }
+            
+            // Update stats
+            document.getElementById('visiblePrompts').textContent = visiblePrompts;
+            document.getElementById('visibleMethods').textContent = visibleMethods;
+        }
+
+        function matchesPromptFilter(promptNum, filter) {
+            if (!filter.trim()) return true;
+            
+            const ranges = filter.split(',');
+            return ranges.some(range => {
+                range = range.trim();
+                if (range.includes('-')) {
+                    const [start, end] = range.split('-').map(n => parseInt(n.trim()));
+                    return promptNum >= start && promptNum <= end;
+                } else {
+                    return promptNum === parseInt(range);
+                }
+            });
+        }
+
+        function resetFilters() {
+            document.getElementById('promptFilter').value = '';
+            document.getElementById('methodFilter').value = 'all';
+            applyFilters();
+        }
+
+        // Event listeners
+        document.getElementById('promptFilter').addEventListener('input', applyFilters);
+        document.getElementById('methodFilter').addEventListener('change', applyFilters);
+
+        // Modal event listeners
+        window.onclick = function(event) {
+            const modal = document.getElementById('imageModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeModal();
+            } else if (event.key === 'f' || event.key === 'F') {
+                if (document.getElementById('imageModal').style.display === 'block') {
+                    toggleFullscreen();
+                }
+            }
+        });
+
+        // Lazy loading for images
+        document.addEventListener('DOMContentLoaded', function() {
+            const images = document.querySelectorAll('img[data-src]');
+            const imageObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        img.src = img.dataset.src;
+                        img.removeAttribute('data-src');
+                        observer.unobserve(img);
+                    }
+                });
+            });
+
+            images.forEach(img => imageObserver.observe(img));
+        });
+    </script>
+</body>
+</html>
