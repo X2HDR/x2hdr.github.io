@@ -766,16 +766,18 @@
 <body>
     <div class="container">
         <div class="header">
-            <a href="../../index.html" class="home-btn">
+            <a href="../../home.html" class="home-btn">
                 <span>&larr;</span> Back to Home
             </a>
             <h1>Ablation: Text-to-HDR Generation</h1>
+            <!-- <p>Comparing 6 different methods across 100 prompts.</p> -->
         </div>
 
+        <!-- 新增的说明文字块 -->
         <div class="description">
             <h3>Results without cherry-picking.</h3>
-            <p>Example #18 occasionally produces images that are not well aligned with the given prompt.</p>
-            <p>Example #33 exhibits visible banding artifacts in the HDR image; this issue can be mitigated by performing inference with an FP32 model.</p>
+            <p>Gamma encoding and log encoding suffer from more significant banding artifacts and color quantization (Example #83) in the HDR image.</p>
+            <p>Example #18 and #68 occasionally produce images that are not well aligned with the given prompt.</p>
         </div>
 
         <div class="controls">
@@ -787,7 +789,7 @@
                 <label for="methodFilter">Show Methods:</label>
                 <select id="methodFilter" class="control-input">
                     <option value="all">All Methods</option>
-                    <option value="No Finetuning">No Finetuning</option><option value="Linear Encoding">Linear Encoding</option><option value="PQ Encoding">PQ Encoding</option><option value="PU21 Encoding (Default)">PU21 Encoding (Default)</option>
+                    <option value="No Finetuning">No Finetuning</option><option value="Linear Encoding">Linear Encoding</option><option value="Gamma Encoding">Gamma Encoding</option><option value="Log Encoding">Log Encoding</option><option value="PQ Encoding">PQ Encoding</option><option value="PU21 Encoding (Default)">PU21 Encoding (Default)</option>
                 </select>
             </div>
             <div class="control-group">
@@ -801,11 +803,11 @@
                 <div class="label">Visible Prompts</div>
             </div>
             <div class="stat-card">
-                <div class="number" id="visibleMethods">4</div>
+                <div class="number" id="visibleMethods">6</div>
                 <div class="label">Active Methods</div>
             </div>
             <div class="stat-card">
-                <div class="number" id="totalImages">400</div>
+                <div class="number" id="totalImages">600</div>
                 <div class="label">Total Images</div>
             </div>
             <div class="stat-card">
@@ -818,13 +820,13 @@
             <table class="comparison-table">
                 <thead>
                     <tr>
-                        <th class="method-header">No Finetuning</th><th class="method-header">Linear Encoding</th><th class="method-header">PQ Encoding</th><th class="method-header">PU21 Encoding (Default)</th>
+                        <th class="method-header">No Finetuning</th><th class="method-header">Linear Encoding</th><th class="method-header">Gamma Encoding</th><th class="method-header">Log Encoding</th><th class="method-header">PQ Encoding</th><th class="method-header">PU21 Encoding (Default)</th>
                     </tr>
                 </thead>
                 <tbody id="tableBody">
                     
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #1</span>
                         <span class="prompt-text">Sunlit desert dunes at high noon with crisp ripples, blazing highlights and hard-edged shadows</span>
@@ -852,6 +854,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_1.jpg" alt="Gamma Encoding - Prompt 1" 
+                             onclick="openModal('gamma/prompt_1.jpg', 1, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_1.jpg" alt="Log Encoding - Prompt 1" 
+                             onclick="openModal('log/prompt_1.jpg', 1, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_1.jpg" alt="PQ Encoding - Prompt 1" 
                              onclick="openModal('pq/prompt_1.jpg', 1, 'PQ Encoding')" 
                              loading="lazy">
@@ -870,7 +890,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #2</span>
                         <span class="prompt-text">a beautiful sunset at a beach with a palm tree</span>
@@ -898,6 +918,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_2.jpg" alt="Gamma Encoding - Prompt 2" 
+                             onclick="openModal('gamma/prompt_2.jpg', 2, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_2.jpg" alt="Log Encoding - Prompt 2" 
+                             onclick="openModal('log/prompt_2.jpg', 2, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_2.jpg" alt="PQ Encoding - Prompt 2" 
                              onclick="openModal('pq/prompt_2.jpg', 2, 'PQ Encoding')" 
                              loading="lazy">
@@ -916,7 +954,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #3</span>
                         <span class="prompt-text">A cathedral interior where morning sun streams through stained glass, casting vivid colored rays across the stone floor and deep shadows</span>
@@ -944,6 +982,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_3.jpg" alt="Gamma Encoding - Prompt 3" 
+                             onclick="openModal('gamma/prompt_3.jpg', 3, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_3.jpg" alt="Log Encoding - Prompt 3" 
+                             onclick="openModal('log/prompt_3.jpg', 3, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_3.jpg" alt="PQ Encoding - Prompt 3" 
                              onclick="openModal('pq/prompt_3.jpg', 3, 'PQ Encoding')" 
                              loading="lazy">
@@ -962,7 +1018,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #4</span>
                         <span class="prompt-text">a photo of New York city at a full moon night</span>
@@ -990,6 +1046,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_4.jpg" alt="Gamma Encoding - Prompt 4" 
+                             onclick="openModal('gamma/prompt_4.jpg', 4, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_4.jpg" alt="Log Encoding - Prompt 4" 
+                             onclick="openModal('log/prompt_4.jpg', 4, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_4.jpg" alt="PQ Encoding - Prompt 4" 
                              onclick="openModal('pq/prompt_4.jpg', 4, 'PQ Encoding')" 
                              loading="lazy">
@@ -1008,7 +1082,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #5</span>
                         <span class="prompt-text">Aurora borealis shimmering over a frozen lake at night with mirror-like reflections and crystal-clear stars</span>
@@ -1036,6 +1110,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_5.jpg" alt="Gamma Encoding - Prompt 5" 
+                             onclick="openModal('gamma/prompt_5.jpg', 5, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_5.jpg" alt="Log Encoding - Prompt 5" 
+                             onclick="openModal('log/prompt_5.jpg', 5, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_5.jpg" alt="PQ Encoding - Prompt 5" 
                              onclick="openModal('pq/prompt_5.jpg', 5, 'PQ Encoding')" 
                              loading="lazy">
@@ -1054,7 +1146,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #6</span>
                         <span class="prompt-text">A towering waterfall in bright sunlight forming a vivid rainbow in the mist, dark rocks in deep shadow</span>
@@ -1082,6 +1174,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_6.jpg" alt="Gamma Encoding - Prompt 6" 
+                             onclick="openModal('gamma/prompt_6.jpg', 6, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_6.jpg" alt="Log Encoding - Prompt 6" 
+                             onclick="openModal('log/prompt_6.jpg', 6, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_6.jpg" alt="PQ Encoding - Prompt 6" 
                              onclick="openModal('pq/prompt_6.jpg', 6, 'PQ Encoding')" 
                              loading="lazy">
@@ -1100,7 +1210,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #7</span>
                         <span class="prompt-text">a lit candle with the shape of bunny</span>
@@ -1128,6 +1238,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_7.jpg" alt="Gamma Encoding - Prompt 7" 
+                             onclick="openModal('gamma/prompt_7.jpg', 7, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_7.jpg" alt="Log Encoding - Prompt 7" 
+                             onclick="openModal('log/prompt_7.jpg', 7, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_7.jpg" alt="PQ Encoding - Prompt 7" 
                              onclick="openModal('pq/prompt_7.jpg', 7, 'PQ Encoding')" 
                              loading="lazy">
@@ -1146,7 +1274,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #8</span>
                         <span class="prompt-text">a stainless steel golf ball sculpture</span>
@@ -1174,6 +1302,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_8.jpg" alt="Gamma Encoding - Prompt 8" 
+                             onclick="openModal('gamma/prompt_8.jpg', 8, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_8.jpg" alt="Log Encoding - Prompt 8" 
+                             onclick="openModal('log/prompt_8.jpg', 8, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_8.jpg" alt="PQ Encoding - Prompt 8" 
                              onclick="openModal('pq/prompt_8.jpg', 8, 'PQ Encoding')" 
                              loading="lazy">
@@ -1192,7 +1338,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #9</span>
                         <span class="prompt-text">a wine glass on a wooden surface, illuminated by a warm light, creating reflections and shadows</span>
@@ -1220,6 +1366,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_9.jpg" alt="Gamma Encoding - Prompt 9" 
+                             onclick="openModal('gamma/prompt_9.jpg', 9, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_9.jpg" alt="Log Encoding - Prompt 9" 
+                             onclick="openModal('log/prompt_9.jpg', 9, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_9.jpg" alt="PQ Encoding - Prompt 9" 
                              onclick="openModal('pq/prompt_9.jpg', 9, 'PQ Encoding')" 
                              loading="lazy">
@@ -1238,7 +1402,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #10</span>
                         <span class="prompt-text">a bright living room with sunlight streaming through windows</span>
@@ -1266,6 +1430,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_10.jpg" alt="Gamma Encoding - Prompt 10" 
+                             onclick="openModal('gamma/prompt_10.jpg', 10, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_10.jpg" alt="Log Encoding - Prompt 10" 
+                             onclick="openModal('log/prompt_10.jpg', 10, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_10.jpg" alt="PQ Encoding - Prompt 10" 
                              onclick="openModal('pq/prompt_10.jpg', 10, 'PQ Encoding')" 
                              loading="lazy">
@@ -1284,7 +1466,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #11</span>
                         <span class="prompt-text">a rainy night city with lights reflecting on wet pavement</span>
@@ -1312,6 +1494,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_11.jpg" alt="Gamma Encoding - Prompt 11" 
+                             onclick="openModal('gamma/prompt_11.jpg', 11, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_11.jpg" alt="Log Encoding - Prompt 11" 
+                             onclick="openModal('log/prompt_11.jpg', 11, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_11.jpg" alt="PQ Encoding - Prompt 11" 
                              onclick="openModal('pq/prompt_11.jpg', 11, 'PQ Encoding')" 
                              loading="lazy">
@@ -1330,7 +1530,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #12</span>
                         <span class="prompt-text">A grand, dimly lit hall with a single candle in the foreground</span>
@@ -1358,6 +1558,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_12.jpg" alt="Gamma Encoding - Prompt 12" 
+                             onclick="openModal('gamma/prompt_12.jpg', 12, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_12.jpg" alt="Log Encoding - Prompt 12" 
+                             onclick="openModal('log/prompt_12.jpg', 12, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_12.jpg" alt="PQ Encoding - Prompt 12" 
                              onclick="openModal('pq/prompt_12.jpg', 12, 'PQ Encoding')" 
                              loading="lazy">
@@ -1376,7 +1594,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #13</span>
                         <span class="prompt-text">A quiet city street at dusk, lined with glowing street lamps and buildings in the background</span>
@@ -1404,6 +1622,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_13.jpg" alt="Gamma Encoding - Prompt 13" 
+                             onclick="openModal('gamma/prompt_13.jpg', 13, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_13.jpg" alt="Log Encoding - Prompt 13" 
+                             onclick="openModal('log/prompt_13.jpg', 13, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_13.jpg" alt="PQ Encoding - Prompt 13" 
                              onclick="openModal('pq/prompt_13.jpg', 13, 'PQ Encoding')" 
                              loading="lazy">
@@ -1422,7 +1658,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #14</span>
                         <span class="prompt-text">Inside a blue ice cave with translucent walls glowing from backlight, sparkling frost and dramatic contrast</span>
@@ -1450,6 +1686,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_14.jpg" alt="Gamma Encoding - Prompt 14" 
+                             onclick="openModal('gamma/prompt_14.jpg', 14, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_14.jpg" alt="Log Encoding - Prompt 14" 
+                             onclick="openModal('log/prompt_14.jpg', 14, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_14.jpg" alt="PQ Encoding - Prompt 14" 
                              onclick="openModal('pq/prompt_14.jpg', 14, 'PQ Encoding')" 
                              loading="lazy">
@@ -1468,7 +1722,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #15</span>
                         <span class="prompt-text">Modern kitchen with granite tops, stainless appliances, and pendant lights</span>
@@ -1496,6 +1750,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_15.jpg" alt="Gamma Encoding - Prompt 15" 
+                             onclick="openModal('gamma/prompt_15.jpg', 15, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_15.jpg" alt="Log Encoding - Prompt 15" 
+                             onclick="openModal('log/prompt_15.jpg', 15, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_15.jpg" alt="PQ Encoding - Prompt 15" 
                              onclick="openModal('pq/prompt_15.jpg', 15, 'PQ Encoding')" 
                              loading="lazy">
@@ -1514,7 +1786,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #16</span>
                         <span class="prompt-text">A glass of whiskey surrounded by empty glasses in a dimly lit bar</span>
@@ -1542,6 +1814,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_16.jpg" alt="Gamma Encoding - Prompt 16" 
+                             onclick="openModal('gamma/prompt_16.jpg', 16, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_16.jpg" alt="Log Encoding - Prompt 16" 
+                             onclick="openModal('log/prompt_16.jpg', 16, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_16.jpg" alt="PQ Encoding - Prompt 16" 
                              onclick="openModal('pq/prompt_16.jpg', 16, 'PQ Encoding')" 
                              loading="lazy">
@@ -1560,7 +1850,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #17</span>
                         <span class="prompt-text">galaxy in the sky</span>
@@ -1588,6 +1878,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_17.jpg" alt="Gamma Encoding - Prompt 17" 
+                             onclick="openModal('gamma/prompt_17.jpg', 17, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_17.jpg" alt="Log Encoding - Prompt 17" 
+                             onclick="openModal('log/prompt_17.jpg', 17, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_17.jpg" alt="PQ Encoding - Prompt 17" 
                              onclick="openModal('pq/prompt_17.jpg', 17, 'PQ Encoding')" 
                              loading="lazy">
@@ -1606,7 +1914,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #18</span>
                         <span class="prompt-text">a photo of the Cambridge University</span>
@@ -1634,6 +1942,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_18.jpg" alt="Gamma Encoding - Prompt 18" 
+                             onclick="openModal('gamma/prompt_18.jpg', 18, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_18.jpg" alt="Log Encoding - Prompt 18" 
+                             onclick="openModal('log/prompt_18.jpg', 18, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_18.jpg" alt="PQ Encoding - Prompt 18" 
                              onclick="openModal('pq/prompt_18.jpg', 18, 'PQ Encoding')" 
                              loading="lazy">
@@ -1652,7 +1978,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #19</span>
                         <span class="prompt-text">A warm, crackling fire with glowing logs burning brightly in a fireplace.</span>
@@ -1680,6 +2006,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_19.jpg" alt="Gamma Encoding - Prompt 19" 
+                             onclick="openModal('gamma/prompt_19.jpg', 19, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_19.jpg" alt="Log Encoding - Prompt 19" 
+                             onclick="openModal('log/prompt_19.jpg', 19, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_19.jpg" alt="PQ Encoding - Prompt 19" 
                              onclick="openModal('pq/prompt_19.jpg', 19, 'PQ Encoding')" 
                              loading="lazy">
@@ -1698,7 +2042,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #20</span>
                         <span class="prompt-text">A bright red firework bursting in the night sky, creating a dazzling display of light</span>
@@ -1726,6 +2070,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_20.jpg" alt="Gamma Encoding - Prompt 20" 
+                             onclick="openModal('gamma/prompt_20.jpg', 20, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_20.jpg" alt="Log Encoding - Prompt 20" 
+                             onclick="openModal('log/prompt_20.jpg', 20, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_20.jpg" alt="PQ Encoding - Prompt 20" 
                              onclick="openModal('pq/prompt_20.jpg', 20, 'PQ Encoding')" 
                              loading="lazy">
@@ -1744,7 +2106,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #21</span>
                         <span class="prompt-text">Sunbeams filtering through a misty redwood forest, bright shafts piercing deep green gloom and long shadows</span>
@@ -1772,6 +2134,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_21.jpg" alt="Gamma Encoding - Prompt 21" 
+                             onclick="openModal('gamma/prompt_21.jpg', 21, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_21.jpg" alt="Log Encoding - Prompt 21" 
+                             onclick="openModal('log/prompt_21.jpg', 21, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_21.jpg" alt="PQ Encoding - Prompt 21" 
                              onclick="openModal('pq/prompt_21.jpg', 21, 'PQ Encoding')" 
                              loading="lazy">
@@ -1790,7 +2170,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #22</span>
                         <span class="prompt-text">A thunderstorm with lightning striking behind a city skyline at night</span>
@@ -1818,6 +2198,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_22.jpg" alt="Gamma Encoding - Prompt 22" 
+                             onclick="openModal('gamma/prompt_22.jpg', 22, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_22.jpg" alt="Log Encoding - Prompt 22" 
+                             onclick="openModal('log/prompt_22.jpg', 22, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_22.jpg" alt="PQ Encoding - Prompt 22" 
                              onclick="openModal('pq/prompt_22.jpg', 22, 'PQ Encoding')" 
                              loading="lazy">
@@ -1836,7 +2234,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #23</span>
                         <span class="prompt-text">A river of glowing lava at night against dark volcanic rocks and smoke</span>
@@ -1864,6 +2262,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_23.jpg" alt="Gamma Encoding - Prompt 23" 
+                             onclick="openModal('gamma/prompt_23.jpg', 23, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_23.jpg" alt="Log Encoding - Prompt 23" 
+                             onclick="openModal('log/prompt_23.jpg', 23, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_23.jpg" alt="PQ Encoding - Prompt 23" 
                              onclick="openModal('pq/prompt_23.jpg', 23, 'PQ Encoding')" 
                              loading="lazy">
@@ -1882,7 +2298,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #24</span>
                         <span class="prompt-text">A lone torii gate rising from the waters, framed by clear skies and distant mountains</span>
@@ -1910,6 +2326,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_24.jpg" alt="Gamma Encoding - Prompt 24" 
+                             onclick="openModal('gamma/prompt_24.jpg', 24, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_24.jpg" alt="Log Encoding - Prompt 24" 
+                             onclick="openModal('log/prompt_24.jpg', 24, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_24.jpg" alt="PQ Encoding - Prompt 24" 
                              onclick="openModal('pq/prompt_24.jpg', 24, 'PQ Encoding')" 
                              loading="lazy">
@@ -1928,7 +2362,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #25</span>
                         <span class="prompt-text">Bioluminescent waves glowing on a beach under a starry sky</span>
@@ -1956,6 +2390,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_25.jpg" alt="Gamma Encoding - Prompt 25" 
+                             onclick="openModal('gamma/prompt_25.jpg', 25, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_25.jpg" alt="Log Encoding - Prompt 25" 
+                             onclick="openModal('log/prompt_25.jpg', 25, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_25.jpg" alt="PQ Encoding - Prompt 25" 
                              onclick="openModal('pq/prompt_25.jpg', 25, 'PQ Encoding')" 
                              loading="lazy">
@@ -1974,7 +2426,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #26</span>
                         <span class="prompt-text">A Moroccan riad courtyard at high noon, intricate lattice shadows from wooden screens across zellige tiles and a central fountain</span>
@@ -2002,6 +2454,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_26.jpg" alt="Gamma Encoding - Prompt 26" 
+                             onclick="openModal('gamma/prompt_26.jpg', 26, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_26.jpg" alt="Log Encoding - Prompt 26" 
+                             onclick="openModal('log/prompt_26.jpg', 26, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_26.jpg" alt="PQ Encoding - Prompt 26" 
                              onclick="openModal('pq/prompt_26.jpg', 26, 'PQ Encoding')" 
                              loading="lazy">
@@ -2020,7 +2490,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #27</span>
                         <span class="prompt-text">Backlit colored glass bottles on a windowsill with strong sunbeams and shadows</span>
@@ -2048,6 +2518,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_27.jpg" alt="Gamma Encoding - Prompt 27" 
+                             onclick="openModal('gamma/prompt_27.jpg', 27, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_27.jpg" alt="Log Encoding - Prompt 27" 
+                             onclick="openModal('log/prompt_27.jpg', 27, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_27.jpg" alt="PQ Encoding - Prompt 27" 
                              onclick="openModal('pq/prompt_27.jpg', 27, 'PQ Encoding')" 
                              loading="lazy">
@@ -2066,7 +2554,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #28</span>
                         <span class="prompt-text">Macro of a dewy spiderweb backlit at sunrise with sparkling highlights</span>
@@ -2094,6 +2582,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_28.jpg" alt="Gamma Encoding - Prompt 28" 
+                             onclick="openModal('gamma/prompt_28.jpg', 28, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_28.jpg" alt="Log Encoding - Prompt 28" 
+                             onclick="openModal('log/prompt_28.jpg', 28, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_28.jpg" alt="PQ Encoding - Prompt 28" 
                              onclick="openModal('pq/prompt_28.jpg', 28, 'PQ Encoding')" 
                              loading="lazy">
@@ -2112,7 +2618,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #29</span>
                         <span class="prompt-text">A neon-lit cyberpunk alley in the rain with wet pavement reflections and haze</span>
@@ -2140,6 +2646,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_29.jpg" alt="Gamma Encoding - Prompt 29" 
+                             onclick="openModal('gamma/prompt_29.jpg', 29, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_29.jpg" alt="Log Encoding - Prompt 29" 
+                             onclick="openModal('log/prompt_29.jpg', 29, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_29.jpg" alt="PQ Encoding - Prompt 29" 
                              onclick="openModal('pq/prompt_29.jpg', 29, 'PQ Encoding')" 
                              loading="lazy">
@@ -2158,7 +2682,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #30</span>
                         <span class="prompt-text">A metallic red sports car under showroom spotlights with glossy reflections</span>
@@ -2186,6 +2710,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_30.jpg" alt="Gamma Encoding - Prompt 30" 
+                             onclick="openModal('gamma/prompt_30.jpg', 30, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_30.jpg" alt="Log Encoding - Prompt 30" 
+                             onclick="openModal('log/prompt_30.jpg', 30, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_30.jpg" alt="PQ Encoding - Prompt 30" 
                              onclick="openModal('pq/prompt_30.jpg', 30, 'PQ Encoding')" 
                              loading="lazy">
@@ -2204,7 +2746,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #31</span>
                         <span class="prompt-text">A chrome motorcycle parked at night under streetlights with sharp specular highlights</span>
@@ -2232,6 +2774,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_31.jpg" alt="Gamma Encoding - Prompt 31" 
+                             onclick="openModal('gamma/prompt_31.jpg', 31, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_31.jpg" alt="Log Encoding - Prompt 31" 
+                             onclick="openModal('log/prompt_31.jpg', 31, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_31.jpg" alt="PQ Encoding - Prompt 31" 
                              onclick="openModal('pq/prompt_31.jpg', 31, 'PQ Encoding')" 
                              loading="lazy">
@@ -2250,7 +2810,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #32</span>
                         <span class="prompt-text">Polished silverware on linen near a sunlit window, crisp reflections and soft shadows</span>
@@ -2278,6 +2838,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_32.jpg" alt="Gamma Encoding - Prompt 32" 
+                             onclick="openModal('gamma/prompt_32.jpg', 32, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_32.jpg" alt="Log Encoding - Prompt 32" 
+                             onclick="openModal('log/prompt_32.jpg', 32, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_32.jpg" alt="PQ Encoding - Prompt 32" 
                              onclick="openModal('pq/prompt_32.jpg', 32, 'PQ Encoding')" 
                              loading="lazy">
@@ -2296,7 +2874,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #33</span>
                         <span class="prompt-text">A glossy black grand piano under a single spotlight, dramatic contrast and gleam</span>
@@ -2324,6 +2902,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_33.jpg" alt="Gamma Encoding - Prompt 33" 
+                             onclick="openModal('gamma/prompt_33.jpg', 33, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_33.jpg" alt="Log Encoding - Prompt 33" 
+                             onclick="openModal('log/prompt_33.jpg', 33, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_33.jpg" alt="PQ Encoding - Prompt 33" 
                              onclick="openModal('pq/prompt_33.jpg', 33, 'PQ Encoding')" 
                              loading="lazy">
@@ -2342,7 +2938,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #34</span>
                         <span class="prompt-text">City skyline viewed through a rain-streaked window with colorful bokeh lights</span>
@@ -2370,6 +2966,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_34.jpg" alt="Gamma Encoding - Prompt 34" 
+                             onclick="openModal('gamma/prompt_34.jpg', 34, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_34.jpg" alt="Log Encoding - Prompt 34" 
+                             onclick="openModal('log/prompt_34.jpg', 34, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_34.jpg" alt="PQ Encoding - Prompt 34" 
                              onclick="openModal('pq/prompt_34.jpg', 34, 'PQ Encoding')" 
                              loading="lazy">
@@ -2388,7 +3002,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #35</span>
                         <span class="prompt-text">A sunlit greenhouse filled with plants and mist, volumetric light shafts everywhere</span>
@@ -2416,6 +3030,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_35.jpg" alt="Gamma Encoding - Prompt 35" 
+                             onclick="openModal('gamma/prompt_35.jpg', 35, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_35.jpg" alt="Log Encoding - Prompt 35" 
+                             onclick="openModal('log/prompt_35.jpg', 35, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_35.jpg" alt="PQ Encoding - Prompt 35" 
                              onclick="openModal('pq/prompt_35.jpg', 35, 'PQ Encoding')" 
                              loading="lazy">
@@ -2434,7 +3066,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #36</span>
                         <span class="prompt-text">An underwater coral reef with sunbeams piercing the surface and caustic patterns</span>
@@ -2462,6 +3094,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_36.jpg" alt="Gamma Encoding - Prompt 36" 
+                             onclick="openModal('gamma/prompt_36.jpg', 36, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_36.jpg" alt="Log Encoding - Prompt 36" 
+                             onclick="openModal('log/prompt_36.jpg', 36, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_36.jpg" alt="PQ Encoding - Prompt 36" 
                              onclick="openModal('pq/prompt_36.jpg', 36, 'PQ Encoding')" 
                              loading="lazy">
@@ -2480,7 +3130,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #37</span>
                         <span class="prompt-text">A narrow sandstone slot canyon with a single sunbeam from above illuminating dust motes, glowing walls and deep shadows</span>
@@ -2508,6 +3158,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_37.jpg" alt="Gamma Encoding - Prompt 37" 
+                             onclick="openModal('gamma/prompt_37.jpg', 37, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_37.jpg" alt="Log Encoding - Prompt 37" 
+                             onclick="openModal('log/prompt_37.jpg', 37, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_37.jpg" alt="PQ Encoding - Prompt 37" 
                              onclick="openModal('pq/prompt_37.jpg', 37, 'PQ Encoding')" 
                              loading="lazy">
@@ -2526,7 +3194,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #38</span>
                         <span class="prompt-text">A torchlit cavern with glowing embers and deep, dramatic shadows on rock walls</span>
@@ -2554,6 +3222,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_38.jpg" alt="Gamma Encoding - Prompt 38" 
+                             onclick="openModal('gamma/prompt_38.jpg', 38, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_38.jpg" alt="Log Encoding - Prompt 38" 
+                             onclick="openModal('log/prompt_38.jpg', 38, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_38.jpg" alt="PQ Encoding - Prompt 38" 
                              onclick="openModal('pq/prompt_38.jpg', 38, 'PQ Encoding')" 
                              loading="lazy">
@@ -2572,7 +3258,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #39</span>
                         <span class="prompt-text">A floating lantern festival at night over a calm river with golden reflections</span>
@@ -2600,6 +3286,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_39.jpg" alt="Gamma Encoding - Prompt 39" 
+                             onclick="openModal('gamma/prompt_39.jpg', 39, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_39.jpg" alt="Log Encoding - Prompt 39" 
+                             onclick="openModal('log/prompt_39.jpg', 39, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_39.jpg" alt="PQ Encoding - Prompt 39" 
                              onclick="openModal('pq/prompt_39.jpg', 39, 'PQ Encoding')" 
                              loading="lazy">
@@ -2618,7 +3322,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #40</span>
                         <span class="prompt-text">A vibrant night market with neon signs and wet street reflections in the rain</span>
@@ -2646,6 +3350,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_40.jpg" alt="Gamma Encoding - Prompt 40" 
+                             onclick="openModal('gamma/prompt_40.jpg', 40, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_40.jpg" alt="Log Encoding - Prompt 40" 
+                             onclick="openModal('log/prompt_40.jpg', 40, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_40.jpg" alt="PQ Encoding - Prompt 40" 
                              onclick="openModal('pq/prompt_40.jpg', 40, 'PQ Encoding')" 
                              loading="lazy">
@@ -2664,7 +3386,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #41</span>
                         <span class="prompt-text">A Christmas tree with twinkling lights and sparkling ornaments, rich bokeh glow</span>
@@ -2692,6 +3414,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_41.jpg" alt="Gamma Encoding - Prompt 41" 
+                             onclick="openModal('gamma/prompt_41.jpg', 41, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_41.jpg" alt="Log Encoding - Prompt 41" 
+                             onclick="openModal('log/prompt_41.jpg', 41, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_41.jpg" alt="PQ Encoding - Prompt 41" 
                              onclick="openModal('pq/prompt_41.jpg', 41, 'PQ Encoding')" 
                              loading="lazy">
@@ -2710,7 +3450,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #42</span>
                         <span class="prompt-text">Northern lights reflecting in a mountain fjord under a clear winter sky</span>
@@ -2738,6 +3478,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_42.jpg" alt="Gamma Encoding - Prompt 42" 
+                             onclick="openModal('gamma/prompt_42.jpg', 42, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_42.jpg" alt="Log Encoding - Prompt 42" 
+                             onclick="openModal('log/prompt_42.jpg', 42, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_42.jpg" alt="PQ Encoding - Prompt 42" 
                              onclick="openModal('pq/prompt_42.jpg', 42, 'PQ Encoding')" 
                              loading="lazy">
@@ -2756,7 +3514,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #43</span>
                         <span class="prompt-text">A lighthouse beam cutting through thick sea fog at dusk with dramatic contrast</span>
@@ -2784,6 +3542,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_43.jpg" alt="Gamma Encoding - Prompt 43" 
+                             onclick="openModal('gamma/prompt_43.jpg', 43, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_43.jpg" alt="Log Encoding - Prompt 43" 
+                             onclick="openModal('log/prompt_43.jpg', 43, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_43.jpg" alt="PQ Encoding - Prompt 43" 
                              onclick="openModal('pq/prompt_43.jpg', 43, 'PQ Encoding')" 
                              loading="lazy">
@@ -2802,7 +3578,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #44</span>
                         <span class="prompt-text">Inside the barrel of a breaking ocean wave at sunrise, glowing turquoise water and a blazing sunburst at the opening</span>
@@ -2830,6 +3606,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_44.jpg" alt="Gamma Encoding - Prompt 44" 
+                             onclick="openModal('gamma/prompt_44.jpg', 44, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_44.jpg" alt="Log Encoding - Prompt 44" 
+                             onclick="openModal('log/prompt_44.jpg', 44, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_44.jpg" alt="PQ Encoding - Prompt 44" 
                              onclick="openModal('pq/prompt_44.jpg', 44, 'PQ Encoding')" 
                              loading="lazy">
@@ -2848,7 +3642,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #45</span>
                         <span class="prompt-text">A backlit sunflower field at golden hour with glowing translucent petals</span>
@@ -2876,6 +3670,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_45.jpg" alt="Gamma Encoding - Prompt 45" 
+                             onclick="openModal('gamma/prompt_45.jpg', 45, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_45.jpg" alt="Log Encoding - Prompt 45" 
+                             onclick="openModal('log/prompt_45.jpg', 45, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_45.jpg" alt="PQ Encoding - Prompt 45" 
                              onclick="openModal('pq/prompt_45.jpg', 45, 'PQ Encoding')" 
                              loading="lazy">
@@ -2894,7 +3706,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #46</span>
                         <span class="prompt-text">A lightning storm over red desert mesas at twilight with dramatic clouds</span>
@@ -2922,6 +3734,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_46.jpg" alt="Gamma Encoding - Prompt 46" 
+                             onclick="openModal('gamma/prompt_46.jpg', 46, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_46.jpg" alt="Log Encoding - Prompt 46" 
+                             onclick="openModal('log/prompt_46.jpg', 46, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_46.jpg" alt="PQ Encoding - Prompt 46" 
                              onclick="openModal('pq/prompt_46.jpg', 46, 'PQ Encoding')" 
                              loading="lazy">
@@ -2940,7 +3770,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #47</span>
                         <span class="prompt-text">Hot air balloons at sunrise over a valley with long soft shadows and haze</span>
@@ -2968,6 +3798,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_47.jpg" alt="Gamma Encoding - Prompt 47" 
+                             onclick="openModal('gamma/prompt_47.jpg', 47, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_47.jpg" alt="Log Encoding - Prompt 47" 
+                             onclick="openModal('log/prompt_47.jpg', 47, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_47.jpg" alt="PQ Encoding - Prompt 47" 
                              onclick="openModal('pq/prompt_47.jpg', 47, 'PQ Encoding')" 
                              loading="lazy">
@@ -2986,7 +3834,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #48</span>
                         <span class="prompt-text">A golden wheat field backlit with lens flare and floating dust particles</span>
@@ -3014,6 +3862,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_48.jpg" alt="Gamma Encoding - Prompt 48" 
+                             onclick="openModal('gamma/prompt_48.jpg', 48, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_48.jpg" alt="Log Encoding - Prompt 48" 
+                             onclick="openModal('log/prompt_48.jpg', 48, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_48.jpg" alt="PQ Encoding - Prompt 48" 
                              onclick="openModal('pq/prompt_48.jpg', 48, 'PQ Encoding')" 
                              loading="lazy">
@@ -3032,7 +3898,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #49</span>
                         <span class="prompt-text">A steam locomotive at night illuminated by station lamps and drifting smoke</span>
@@ -3060,6 +3926,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_49.jpg" alt="Gamma Encoding - Prompt 49" 
+                             onclick="openModal('gamma/prompt_49.jpg', 49, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_49.jpg" alt="Log Encoding - Prompt 49" 
+                             onclick="openModal('log/prompt_49.jpg', 49, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_49.jpg" alt="PQ Encoding - Prompt 49" 
                              onclick="openModal('pq/prompt_49.jpg', 49, 'PQ Encoding')" 
                              loading="lazy">
@@ -3078,7 +3962,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #50</span>
                         <span class="prompt-text">A glacier ridge at dawn with a sunburst peeking over icy peaks and sparkles</span>
@@ -3106,6 +3990,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_50.jpg" alt="Gamma Encoding - Prompt 50" 
+                             onclick="openModal('gamma/prompt_50.jpg', 50, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_50.jpg" alt="Log Encoding - Prompt 50" 
+                             onclick="openModal('log/prompt_50.jpg', 50, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_50.jpg" alt="PQ Encoding - Prompt 50" 
                              onclick="openModal('pq/prompt_50.jpg', 50, 'PQ Encoding')" 
                              loading="lazy">
@@ -3124,7 +4026,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #51</span>
                         <span class="prompt-text">A mirror-still lake at sunrise with perfect mountain reflections and morning fog</span>
@@ -3152,6 +4054,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_51.jpg" alt="Gamma Encoding - Prompt 51" 
+                             onclick="openModal('gamma/prompt_51.jpg', 51, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_51.jpg" alt="Log Encoding - Prompt 51" 
+                             onclick="openModal('log/prompt_51.jpg', 51, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_51.jpg" alt="PQ Encoding - Prompt 51" 
                              onclick="openModal('pq/prompt_51.jpg', 51, 'PQ Encoding')" 
                              loading="lazy">
@@ -3170,7 +4090,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #52</span>
                         <span class="prompt-text">Sun rays slicing between skyscrapers at sunrise through city haze and glass</span>
@@ -3198,6 +4118,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_52.jpg" alt="Gamma Encoding - Prompt 52" 
+                             onclick="openModal('gamma/prompt_52.jpg', 52, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_52.jpg" alt="Log Encoding - Prompt 52" 
+                             onclick="openModal('log/prompt_52.jpg', 52, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_52.jpg" alt="PQ Encoding - Prompt 52" 
                              onclick="openModal('pq/prompt_52.jpg', 52, 'PQ Encoding')" 
                              loading="lazy">
@@ -3216,7 +4154,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #53</span>
                         <span class="prompt-text">A suspension bridge at blue hour with glowing lights and water reflections</span>
@@ -3244,6 +4182,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_53.jpg" alt="Gamma Encoding - Prompt 53" 
+                             onclick="openModal('gamma/prompt_53.jpg', 53, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_53.jpg" alt="Log Encoding - Prompt 53" 
+                             onclick="openModal('log/prompt_53.jpg', 53, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_53.jpg" alt="PQ Encoding - Prompt 53" 
                              onclick="openModal('pq/prompt_53.jpg', 53, 'PQ Encoding')" 
                              loading="lazy">
@@ -3262,7 +4218,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #54</span>
                         <span class="prompt-text">A highway at night with long-exposure light trails of red and white streaks</span>
@@ -3290,6 +4246,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_54.jpg" alt="Gamma Encoding - Prompt 54" 
+                             onclick="openModal('gamma/prompt_54.jpg', 54, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_54.jpg" alt="Log Encoding - Prompt 54" 
+                             onclick="openModal('log/prompt_54.jpg', 54, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_54.jpg" alt="PQ Encoding - Prompt 54" 
                              onclick="openModal('pq/prompt_54.jpg', 54, 'PQ Encoding')" 
                              loading="lazy">
@@ -3308,7 +4282,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #55</span>
                         <span class="prompt-text">A steel foundry with molten metal pouring, fiery glow against dark machinery</span>
@@ -3336,6 +4310,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_55.jpg" alt="Gamma Encoding - Prompt 55" 
+                             onclick="openModal('gamma/prompt_55.jpg', 55, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_55.jpg" alt="Log Encoding - Prompt 55" 
+                             onclick="openModal('log/prompt_55.jpg', 55, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_55.jpg" alt="PQ Encoding - Prompt 55" 
                              onclick="openModal('pq/prompt_55.jpg', 55, 'PQ Encoding')" 
                              loading="lazy">
@@ -3354,7 +4346,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #56</span>
                         <span class="prompt-text">Welding sparks spraying in a dim workshop, bright bursts and deep shadows</span>
@@ -3382,6 +4374,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_56.jpg" alt="Gamma Encoding - Prompt 56" 
+                             onclick="openModal('gamma/prompt_56.jpg', 56, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_56.jpg" alt="Log Encoding - Prompt 56" 
+                             onclick="openModal('log/prompt_56.jpg', 56, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_56.jpg" alt="PQ Encoding - Prompt 56" 
                              onclick="openModal('pq/prompt_56.jpg', 56, 'PQ Encoding')" 
                              loading="lazy">
@@ -3400,7 +4410,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #57</span>
                         <span class="prompt-text">A sparkler long exposure drawing light trails in the night, vivid bokeh</span>
@@ -3428,6 +4438,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_57.jpg" alt="Gamma Encoding - Prompt 57" 
+                             onclick="openModal('gamma/prompt_57.jpg', 57, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_57.jpg" alt="Log Encoding - Prompt 57" 
+                             onclick="openModal('log/prompt_57.jpg', 57, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_57.jpg" alt="PQ Encoding - Prompt 57" 
                              onclick="openModal('pq/prompt_57.jpg', 57, 'PQ Encoding')" 
                              loading="lazy">
@@ -3446,7 +4474,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #58</span>
                         <span class="prompt-text">A candlelit dinner table with crystal glassware and rich reflections on cutlery</span>
@@ -3474,6 +4502,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_58.jpg" alt="Gamma Encoding - Prompt 58" 
+                             onclick="openModal('gamma/prompt_58.jpg', 58, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_58.jpg" alt="Log Encoding - Prompt 58" 
+                             onclick="openModal('log/prompt_58.jpg', 58, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_58.jpg" alt="PQ Encoding - Prompt 58" 
                              onclick="openModal('pq/prompt_58.jpg', 58, 'PQ Encoding')" 
                              loading="lazy">
@@ -3492,7 +4538,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #59</span>
                         <span class="prompt-text">A crystal chandelier sparkling with prismatic highlights in a grand foyer</span>
@@ -3520,6 +4566,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_59.jpg" alt="Gamma Encoding - Prompt 59" 
+                             onclick="openModal('gamma/prompt_59.jpg', 59, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_59.jpg" alt="Log Encoding - Prompt 59" 
+                             onclick="openModal('log/prompt_59.jpg', 59, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_59.jpg" alt="PQ Encoding - Prompt 59" 
                              onclick="openModal('pq/prompt_59.jpg', 59, 'PQ Encoding')" 
                              loading="lazy">
@@ -3538,7 +4602,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #60</span>
                         <span class="prompt-text">Macro of a diamond ring with starburst reflections and razor-sharp facets</span>
@@ -3566,6 +4630,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_60.jpg" alt="Gamma Encoding - Prompt 60" 
+                             onclick="openModal('gamma/prompt_60.jpg', 60, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_60.jpg" alt="Log Encoding - Prompt 60" 
+                             onclick="openModal('log/prompt_60.jpg', 60, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_60.jpg" alt="PQ Encoding - Prompt 60" 
                              onclick="openModal('pq/prompt_60.jpg', 60, 'PQ Encoding')" 
                              loading="lazy">
@@ -3584,7 +4666,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #61</span>
                         <span class="prompt-text">Macro wristwatch dial with luminous markers and crisp metallic reflections</span>
@@ -3612,6 +4694,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_61.jpg" alt="Gamma Encoding - Prompt 61" 
+                             onclick="openModal('gamma/prompt_61.jpg', 61, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_61.jpg" alt="Log Encoding - Prompt 61" 
+                             onclick="openModal('log/prompt_61.jpg', 61, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_61.jpg" alt="PQ Encoding - Prompt 61" 
                              onclick="openModal('pq/prompt_61.jpg', 61, 'PQ Encoding')" 
                              loading="lazy">
@@ -3630,7 +4730,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #62</span>
                         <span class="prompt-text">A steaming coffee cup in window light with soft rays and dust motes floating</span>
@@ -3658,6 +4758,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_62.jpg" alt="Gamma Encoding - Prompt 62" 
+                             onclick="openModal('gamma/prompt_62.jpg', 62, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_62.jpg" alt="Log Encoding - Prompt 62" 
+                             onclick="openModal('log/prompt_62.jpg', 62, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_62.jpg" alt="PQ Encoding - Prompt 62" 
                              onclick="openModal('pq/prompt_62.jpg', 62, 'PQ Encoding')" 
                              loading="lazy">
@@ -3676,7 +4794,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #63</span>
                         <span class="prompt-text">A glass teapot of amber tea backlit on a wooden table with glowing edges</span>
@@ -3704,6 +4822,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_63.jpg" alt="Gamma Encoding - Prompt 63" 
+                             onclick="openModal('gamma/prompt_63.jpg', 63, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_63.jpg" alt="Log Encoding - Prompt 63" 
+                             onclick="openModal('log/prompt_63.jpg', 63, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_63.jpg" alt="PQ Encoding - Prompt 63" 
                              onclick="openModal('pq/prompt_63.jpg', 63, 'PQ Encoding')" 
                              loading="lazy">
@@ -3722,7 +4858,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #64</span>
                         <span class="prompt-text">Macro of ice cubes in soda with condensation droplets and sparkling bubbles</span>
@@ -3750,6 +4886,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_64.jpg" alt="Gamma Encoding - Prompt 64" 
+                             onclick="openModal('gamma/prompt_64.jpg', 64, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_64.jpg" alt="Log Encoding - Prompt 64" 
+                             onclick="openModal('log/prompt_64.jpg', 64, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_64.jpg" alt="PQ Encoding - Prompt 64" 
                              onclick="openModal('pq/prompt_64.jpg', 64, 'PQ Encoding')" 
                              loading="lazy">
@@ -3768,7 +4922,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #65</span>
                         <span class="prompt-text">A high-speed water splash crown on a reflective surface with crisp highlights</span>
@@ -3796,6 +4950,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_65.jpg" alt="Gamma Encoding - Prompt 65" 
+                             onclick="openModal('gamma/prompt_65.jpg', 65, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_65.jpg" alt="Log Encoding - Prompt 65" 
+                             onclick="openModal('log/prompt_65.jpg', 65, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_65.jpg" alt="PQ Encoding - Prompt 65" 
                              onclick="openModal('pq/prompt_65.jpg', 65, 'PQ Encoding')" 
                              loading="lazy">
@@ -3814,7 +4986,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #66</span>
                         <span class="prompt-text">A prism casting a vivid spectrum of colors across a clean white wall</span>
@@ -3842,6 +5014,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_66.jpg" alt="Gamma Encoding - Prompt 66" 
+                             onclick="openModal('gamma/prompt_66.jpg', 66, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_66.jpg" alt="Log Encoding - Prompt 66" 
+                             onclick="openModal('log/prompt_66.jpg', 66, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_66.jpg" alt="PQ Encoding - Prompt 66" 
                              onclick="openModal('pq/prompt_66.jpg', 66, 'PQ Encoding')" 
                              loading="lazy">
@@ -3860,7 +5050,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #67</span>
                         <span class="prompt-text">Close-up of a compact disc with intense diffraction rainbow patterns</span>
@@ -3888,6 +5078,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_67.jpg" alt="Gamma Encoding - Prompt 67" 
+                             onclick="openModal('gamma/prompt_67.jpg', 67, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_67.jpg" alt="Log Encoding - Prompt 67" 
+                             onclick="openModal('log/prompt_67.jpg', 67, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_67.jpg" alt="PQ Encoding - Prompt 67" 
                              onclick="openModal('pq/prompt_67.jpg', 67, 'PQ Encoding')" 
                              loading="lazy">
@@ -3906,7 +5114,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #68</span>
                         <span class="prompt-text">Holographic foil shimmering with iridescent highlights and deep shadows</span>
@@ -3934,6 +5142,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_68.jpg" alt="Gamma Encoding - Prompt 68" 
+                             onclick="openModal('gamma/prompt_68.jpg', 68, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_68.jpg" alt="Log Encoding - Prompt 68" 
+                             onclick="openModal('log/prompt_68.jpg', 68, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_68.jpg" alt="PQ Encoding - Prompt 68" 
                              onclick="openModal('pq/prompt_68.jpg', 68, 'PQ Encoding')" 
                              loading="lazy">
@@ -3952,7 +5178,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #69</span>
                         <span class="prompt-text">Oil slick rainbow colors on wet asphalt after rain, glossy reflections</span>
@@ -3980,6 +5206,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_69.jpg" alt="Gamma Encoding - Prompt 69" 
+                             onclick="openModal('gamma/prompt_69.jpg', 69, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_69.jpg" alt="Log Encoding - Prompt 69" 
+                             onclick="openModal('log/prompt_69.jpg', 69, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_69.jpg" alt="PQ Encoding - Prompt 69" 
                              onclick="openModal('pq/prompt_69.jpg', 69, 'PQ Encoding')" 
                              loading="lazy">
@@ -3998,7 +5242,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #70</span>
                         <span class="prompt-text">Stained glass patterns projected onto a stone floor by bright sunlight</span>
@@ -4026,6 +5270,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_70.jpg" alt="Gamma Encoding - Prompt 70" 
+                             onclick="openModal('gamma/prompt_70.jpg', 70, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_70.jpg" alt="Log Encoding - Prompt 70" 
+                             onclick="openModal('log/prompt_70.jpg', 70, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_70.jpg" alt="PQ Encoding - Prompt 70" 
                              onclick="openModal('pq/prompt_70.jpg', 70, 'PQ Encoding')" 
                              loading="lazy">
@@ -4044,7 +5306,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #71</span>
                         <span class="prompt-text">Laser beams cutting through stage haze in a dark room, intense contrast</span>
@@ -4072,6 +5334,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_71.jpg" alt="Gamma Encoding - Prompt 71" 
+                             onclick="openModal('gamma/prompt_71.jpg', 71, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_71.jpg" alt="Log Encoding - Prompt 71" 
+                             onclick="openModal('log/prompt_71.jpg', 71, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_71.jpg" alt="PQ Encoding - Prompt 71" 
                              onclick="openModal('pq/prompt_71.jpg', 71, 'PQ Encoding')" 
                              loading="lazy">
@@ -4090,7 +5370,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #72</span>
                         <span class="prompt-text">A concert stage with spotlights, fog, and audience silhouettes glowing</span>
@@ -4118,6 +5398,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_72.jpg" alt="Gamma Encoding - Prompt 72" 
+                             onclick="openModal('gamma/prompt_72.jpg', 72, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_72.jpg" alt="Log Encoding - Prompt 72" 
+                             onclick="openModal('log/prompt_72.jpg', 72, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_72.jpg" alt="PQ Encoding - Prompt 72" 
                              onclick="openModal('pq/prompt_72.jpg', 72, 'PQ Encoding')" 
                              loading="lazy">
@@ -4136,7 +5434,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #73</span>
                         <span class="prompt-text">A stadium at night under powerful floodlights with rain streaks and glare</span>
@@ -4164,6 +5462,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_73.jpg" alt="Gamma Encoding - Prompt 73" 
+                             onclick="openModal('gamma/prompt_73.jpg', 73, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_73.jpg" alt="Log Encoding - Prompt 73" 
+                             onclick="openModal('log/prompt_73.jpg', 73, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_73.jpg" alt="PQ Encoding - Prompt 73" 
                              onclick="openModal('pq/prompt_73.jpg', 73, 'PQ Encoding')" 
                              loading="lazy">
@@ -4182,7 +5498,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #74</span>
                         <span class="prompt-text">Fireflies glowing in a dark forest with soft bokeh and misty atmosphere</span>
@@ -4210,6 +5526,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_74.jpg" alt="Gamma Encoding - Prompt 74" 
+                             onclick="openModal('gamma/prompt_74.jpg', 74, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_74.jpg" alt="Log Encoding - Prompt 74" 
+                             onclick="openModal('log/prompt_74.jpg', 74, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_74.jpg" alt="PQ Encoding - Prompt 74" 
                              onclick="openModal('pq/prompt_74.jpg', 74, 'PQ Encoding')" 
                              loading="lazy">
@@ -4228,7 +5562,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #75</span>
                         <span class="prompt-text">A campfire beneath the Milky Way, warm glow against a deep starry sky</span>
@@ -4256,6 +5590,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_75.jpg" alt="Gamma Encoding - Prompt 75" 
+                             onclick="openModal('gamma/prompt_75.jpg', 75, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_75.jpg" alt="Log Encoding - Prompt 75" 
+                             onclick="openModal('log/prompt_75.jpg', 75, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_75.jpg" alt="PQ Encoding - Prompt 75" 
                              onclick="openModal('pq/prompt_75.jpg', 75, 'PQ Encoding')" 
                              loading="lazy">
@@ -4274,7 +5626,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #76</span>
                         <span class="prompt-text">A beach bonfire at night with flying sparks and waves reflecting firelight</span>
@@ -4302,6 +5654,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_76.jpg" alt="Gamma Encoding - Prompt 76" 
+                             onclick="openModal('gamma/prompt_76.jpg', 76, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_76.jpg" alt="Log Encoding - Prompt 76" 
+                             onclick="openModal('log/prompt_76.jpg', 76, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_76.jpg" alt="PQ Encoding - Prompt 76" 
                              onclick="openModal('pq/prompt_76.jpg', 76, 'PQ Encoding')" 
                              loading="lazy">
@@ -4320,7 +5690,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #77</span>
                         <span class="prompt-text">A lantern glowing on fresh snow in a quiet village night, crisp sparkle</span>
@@ -4348,6 +5718,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_77.jpg" alt="Gamma Encoding - Prompt 77" 
+                             onclick="openModal('gamma/prompt_77.jpg', 77, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_77.jpg" alt="Log Encoding - Prompt 77" 
+                             onclick="openModal('log/prompt_77.jpg', 77, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_77.jpg" alt="PQ Encoding - Prompt 77" 
                              onclick="openModal('pq/prompt_77.jpg', 77, 'PQ Encoding')" 
                              loading="lazy">
@@ -4366,7 +5754,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #78</span>
                         <span class="prompt-text">Northern lights over a pine forest mirrored in a still lake at night</span>
@@ -4394,6 +5782,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_78.jpg" alt="Gamma Encoding - Prompt 78" 
+                             onclick="openModal('gamma/prompt_78.jpg', 78, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_78.jpg" alt="Log Encoding - Prompt 78" 
+                             onclick="openModal('log/prompt_78.jpg', 78, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_78.jpg" alt="PQ Encoding - Prompt 78" 
                              onclick="openModal('pq/prompt_78.jpg', 78, 'PQ Encoding')" 
                              loading="lazy">
@@ -4412,7 +5818,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #79</span>
                         <span class="prompt-text">A rooftop infinity pool at night reflecting skyscraper lights and stars</span>
@@ -4440,6 +5846,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_79.jpg" alt="Gamma Encoding - Prompt 79" 
+                             onclick="openModal('gamma/prompt_79.jpg', 79, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_79.jpg" alt="Log Encoding - Prompt 79" 
+                             onclick="openModal('log/prompt_79.jpg', 79, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_79.jpg" alt="PQ Encoding - Prompt 79" 
                              onclick="openModal('pq/prompt_79.jpg', 79, 'PQ Encoding')" 
                              loading="lazy">
@@ -4458,7 +5882,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #80</span>
                         <span class="prompt-text">A glass atrium with sun shafts, reflections on marble floor and glass rails</span>
@@ -4486,6 +5910,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_80.jpg" alt="Gamma Encoding - Prompt 80" 
+                             onclick="openModal('gamma/prompt_80.jpg', 80, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_80.jpg" alt="Log Encoding - Prompt 80" 
+                             onclick="openModal('log/prompt_80.jpg', 80, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_80.jpg" alt="PQ Encoding - Prompt 80" 
                              onclick="openModal('pq/prompt_80.jpg', 80, 'PQ Encoding')" 
                              loading="lazy">
@@ -4504,7 +5946,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #81</span>
                         <span class="prompt-text">A subway platform with polished floor and overhead lights creating long gleam</span>
@@ -4532,6 +5974,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_81.jpg" alt="Gamma Encoding - Prompt 81" 
+                             onclick="openModal('gamma/prompt_81.jpg', 81, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_81.jpg" alt="Log Encoding - Prompt 81" 
+                             onclick="openModal('log/prompt_81.jpg', 81, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_81.jpg" alt="PQ Encoding - Prompt 81" 
                              onclick="openModal('pq/prompt_81.jpg', 81, 'PQ Encoding')" 
                              loading="lazy">
@@ -4550,7 +6010,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #82</span>
                         <span class="prompt-text">Airport terminal glass facade at sunrise with strong reflections and glow</span>
@@ -4578,6 +6038,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_82.jpg" alt="Gamma Encoding - Prompt 82" 
+                             onclick="openModal('gamma/prompt_82.jpg', 82, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_82.jpg" alt="Log Encoding - Prompt 82" 
+                             onclick="openModal('log/prompt_82.jpg', 82, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_82.jpg" alt="PQ Encoding - Prompt 82" 
                              onclick="openModal('pq/prompt_82.jpg', 82, 'PQ Encoding')" 
                              loading="lazy">
@@ -4596,7 +6074,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #83</span>
                         <span class="prompt-text">A dark train tunnel with a bright exit light silhouetting the rails</span>
@@ -4624,6 +6102,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_83.jpg" alt="Gamma Encoding - Prompt 83" 
+                             onclick="openModal('gamma/prompt_83.jpg', 83, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_83.jpg" alt="Log Encoding - Prompt 83" 
+                             onclick="openModal('log/prompt_83.jpg', 83, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_83.jpg" alt="PQ Encoding - Prompt 83" 
                              onclick="openModal('pq/prompt_83.jpg', 83, 'PQ Encoding')" 
                              loading="lazy">
@@ -4642,7 +6138,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #84</span>
                         <span class="prompt-text">A lone tree in silhouette against a dramatic sunset sky with vivid gradients</span>
@@ -4670,6 +6166,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_84.jpg" alt="Gamma Encoding - Prompt 84" 
+                             onclick="openModal('gamma/prompt_84.jpg', 84, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_84.jpg" alt="Log Encoding - Prompt 84" 
+                             onclick="openModal('log/prompt_84.jpg', 84, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_84.jpg" alt="PQ Encoding - Prompt 84" 
                              onclick="openModal('pq/prompt_84.jpg', 84, 'PQ Encoding')" 
                              loading="lazy">
@@ -4688,7 +6202,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #85</span>
                         <span class="prompt-text">A stormy sea with the sun breaking through dark clouds, intense highlights</span>
@@ -4716,6 +6230,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_85.jpg" alt="Gamma Encoding - Prompt 85" 
+                             onclick="openModal('gamma/prompt_85.jpg', 85, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_85.jpg" alt="Log Encoding - Prompt 85" 
+                             onclick="openModal('log/prompt_85.jpg', 85, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_85.jpg" alt="PQ Encoding - Prompt 85" 
                              onclick="openModal('pq/prompt_85.jpg', 85, 'PQ Encoding')" 
                              loading="lazy">
@@ -4734,7 +6266,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #86</span>
                         <span class="prompt-text">A sailing ship at golden hour with shimmering water and long reflections</span>
@@ -4762,6 +6294,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_86.jpg" alt="Gamma Encoding - Prompt 86" 
+                             onclick="openModal('gamma/prompt_86.jpg', 86, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_86.jpg" alt="Log Encoding - Prompt 86" 
+                             onclick="openModal('log/prompt_86.jpg', 86, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_86.jpg" alt="PQ Encoding - Prompt 86" 
                              onclick="openModal('pq/prompt_86.jpg', 86, 'PQ Encoding')" 
                              loading="lazy">
@@ -4780,7 +6330,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #87</span>
                         <span class="prompt-text">An icy river with glittering sunstars on water and crisp snowy banks</span>
@@ -4808,6 +6358,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_87.jpg" alt="Gamma Encoding - Prompt 87" 
+                             onclick="openModal('gamma/prompt_87.jpg', 87, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_87.jpg" alt="Log Encoding - Prompt 87" 
+                             onclick="openModal('log/prompt_87.jpg', 87, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_87.jpg" alt="PQ Encoding - Prompt 87" 
                              onclick="openModal('pq/prompt_87.jpg', 87, 'PQ Encoding')" 
                              loading="lazy">
@@ -4826,7 +6394,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #88</span>
                         <span class="prompt-text">Macro of frozen methane bubbles in a clear lake backlit with bright sparkle</span>
@@ -4854,6 +6422,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_88.jpg" alt="Gamma Encoding - Prompt 88" 
+                             onclick="openModal('gamma/prompt_88.jpg', 88, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_88.jpg" alt="Log Encoding - Prompt 88" 
+                             onclick="openModal('log/prompt_88.jpg', 88, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_88.jpg" alt="PQ Encoding - Prompt 88" 
                              onclick="openModal('pq/prompt_88.jpg', 88, 'PQ Encoding')" 
                              loading="lazy">
@@ -4872,7 +6458,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #89</span>
                         <span class="prompt-text">Frost patterns on a window backlit by sunrise, luminous crystalline detail</span>
@@ -4900,6 +6486,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_89.jpg" alt="Gamma Encoding - Prompt 89" 
+                             onclick="openModal('gamma/prompt_89.jpg', 89, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_89.jpg" alt="Log Encoding - Prompt 89" 
+                             onclick="openModal('log/prompt_89.jpg', 89, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_89.jpg" alt="PQ Encoding - Prompt 89" 
                              onclick="openModal('pq/prompt_89.jpg', 89, 'PQ Encoding')" 
                              loading="lazy">
@@ -4918,7 +6522,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #90</span>
                         <span class="prompt-text">Macro soap bubble with swirling iridescent colors and bright speculars</span>
@@ -4946,6 +6550,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_90.jpg" alt="Gamma Encoding - Prompt 90" 
+                             onclick="openModal('gamma/prompt_90.jpg', 90, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_90.jpg" alt="Log Encoding - Prompt 90" 
+                             onclick="openModal('log/prompt_90.jpg', 90, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_90.jpg" alt="PQ Encoding - Prompt 90" 
                              onclick="openModal('pq/prompt_90.jpg', 90, 'PQ Encoding')" 
                              loading="lazy">
@@ -4964,7 +6586,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #91</span>
                         <span class="prompt-text">Metallic beetle macro with glossy elytra and sharp specular highlights</span>
@@ -4992,6 +6614,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_91.jpg" alt="Gamma Encoding - Prompt 91" 
+                             onclick="openModal('gamma/prompt_91.jpg', 91, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_91.jpg" alt="Log Encoding - Prompt 91" 
+                             onclick="openModal('log/prompt_91.jpg', 91, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_91.jpg" alt="PQ Encoding - Prompt 91" 
                              onclick="openModal('pq/prompt_91.jpg', 91, 'PQ Encoding')" 
                              loading="lazy">
@@ -5010,7 +6650,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #92</span>
                         <span class="prompt-text">Vibrant macaw parrots backlit so their feathers glow translucently</span>
@@ -5038,6 +6678,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_92.jpg" alt="Gamma Encoding - Prompt 92" 
+                             onclick="openModal('gamma/prompt_92.jpg', 92, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_92.jpg" alt="Log Encoding - Prompt 92" 
+                             onclick="openModal('log/prompt_92.jpg', 92, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_92.jpg" alt="PQ Encoding - Prompt 92" 
                              onclick="openModal('pq/prompt_92.jpg', 92, 'PQ Encoding')" 
                              loading="lazy">
@@ -5056,7 +6714,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #93</span>
                         <span class="prompt-text">Jellyfish drifting in a dark aquarium with soft internal bioluminescent glow</span>
@@ -5084,6 +6742,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_93.jpg" alt="Gamma Encoding - Prompt 93" 
+                             onclick="openModal('gamma/prompt_93.jpg', 93, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_93.jpg" alt="Log Encoding - Prompt 93" 
+                             onclick="openModal('log/prompt_93.jpg', 93, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_93.jpg" alt="PQ Encoding - Prompt 93" 
                              onclick="openModal('pq/prompt_93.jpg', 93, 'PQ Encoding')" 
                              loading="lazy">
@@ -5102,7 +6778,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #94</span>
                         <span class="prompt-text">A tropical fish school with sun caustics rippling across vivid corals</span>
@@ -5130,6 +6806,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_94.jpg" alt="Gamma Encoding - Prompt 94" 
+                             onclick="openModal('gamma/prompt_94.jpg', 94, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_94.jpg" alt="Log Encoding - Prompt 94" 
+                             onclick="openModal('log/prompt_94.jpg', 94, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_94.jpg" alt="PQ Encoding - Prompt 94" 
                              onclick="openModal('pq/prompt_94.jpg', 94, 'PQ Encoding')" 
                              loading="lazy">
@@ -5148,7 +6842,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #95</span>
                         <span class="prompt-text">Cozy bookstore at night seen through a window with warm lamps and glare</span>
@@ -5176,6 +6870,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_95.jpg" alt="Gamma Encoding - Prompt 95" 
+                             onclick="openModal('gamma/prompt_95.jpg', 95, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_95.jpg" alt="Log Encoding - Prompt 95" 
+                             onclick="openModal('log/prompt_95.jpg', 95, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_95.jpg" alt="PQ Encoding - Prompt 95" 
                              onclick="openModal('pq/prompt_95.jpg', 95, 'PQ Encoding')" 
                              loading="lazy">
@@ -5194,7 +6906,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #96</span>
                         <span class="prompt-text">A vintage cinema marquee glowing with bright neon letters at night</span>
@@ -5222,6 +6934,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_96.jpg" alt="Gamma Encoding - Prompt 96" 
+                             onclick="openModal('gamma/prompt_96.jpg', 96, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_96.jpg" alt="Log Encoding - Prompt 96" 
+                             onclick="openModal('log/prompt_96.jpg', 96, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_96.jpg" alt="PQ Encoding - Prompt 96" 
                              onclick="openModal('pq/prompt_96.jpg', 96, 'PQ Encoding')" 
                              loading="lazy">
@@ -5240,7 +6970,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #97</span>
                         <span class="prompt-text">A retro diner interior with chrome edges and neon reflections on tiles</span>
@@ -5268,6 +6998,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_97.jpg" alt="Gamma Encoding - Prompt 97" 
+                             onclick="openModal('gamma/prompt_97.jpg', 97, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_97.jpg" alt="Log Encoding - Prompt 97" 
+                             onclick="openModal('log/prompt_97.jpg', 97, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_97.jpg" alt="PQ Encoding - Prompt 97" 
                              onclick="openModal('pq/prompt_97.jpg', 97, 'PQ Encoding')" 
                              loading="lazy">
@@ -5286,7 +7034,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #98</span>
                         <span class="prompt-text">String lights hanging over a city street at night with creamy bokeh</span>
@@ -5314,6 +7062,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_98.jpg" alt="Gamma Encoding - Prompt 98" 
+                             onclick="openModal('gamma/prompt_98.jpg', 98, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_98.jpg" alt="Log Encoding - Prompt 98" 
+                             onclick="openModal('log/prompt_98.jpg', 98, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_98.jpg" alt="PQ Encoding - Prompt 98" 
                              onclick="openModal('pq/prompt_98.jpg', 98, 'PQ Encoding')" 
                              loading="lazy">
@@ -5332,7 +7098,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #99</span>
                         <span class="prompt-text">A snowy mountain village at night with warm window light and crisp stars</span>
@@ -5360,6 +7126,24 @@
                 </td>
                 <td class="image-cell">
                     <div class="image-container">
+                        <img src="gamma/prompt_99.jpg" alt="Gamma Encoding - Prompt 99" 
+                             onclick="openModal('gamma/prompt_99.jpg', 99, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_99.jpg" alt="Log Encoding - Prompt 99" 
+                             onclick="openModal('log/prompt_99.jpg', 99, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
                         <img src="pq/prompt_99.jpg" alt="PQ Encoding - Prompt 99" 
                              onclick="openModal('pq/prompt_99.jpg', 99, 'PQ Encoding')" 
                              loading="lazy">
@@ -5378,7 +7162,7 @@
                 </td>
             </tr>
             <tr class="prompt-row">
-                <td colspan="4" class="prompt-cell">
+                <td colspan="6" class="prompt-cell">
                     <div class="prompt-header">
                         <span class="prompt-number">Example #100</span>
                         <span class="prompt-text">A pagoda at dusk illuminated by paper lanterns with reflections in a pond</span>
@@ -5402,6 +7186,24 @@
                              loading="lazy">
                         
                         <div class="method-label">Linear Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="gamma/prompt_100.jpg" alt="Gamma Encoding - Prompt 100" 
+                             onclick="openModal('gamma/prompt_100.jpg', 100, 'Gamma Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Gamma Encoding</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="log/prompt_100.jpg" alt="Log Encoding - Prompt 100" 
+                             onclick="openModal('log/prompt_100.jpg', 100, 'Log Encoding')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Log Encoding</div>
                     </div>
                 </td>
                 <td class="image-cell">
@@ -5445,7 +7247,7 @@
 
     <script>
         let isFullscreen = false;
-        let qualityScores = {"No Finetuning": {}, "Linear Encoding": {}, "PQ Encoding": {}, "PU21 Encoding (Default)": {}};
+        let qualityScores = {"No Finetuning": {}, "Linear Encoding": {}, "Gamma Encoding": {}, "Log Encoding": {}, "PQ Encoding": {}, "PU21 Encoding (Default)": {}};
 
         // Modal functions
         function openModal(imageSrc, promptNum, methodName) {
@@ -5524,7 +7326,7 @@
             gridContainer.innerHTML = '';
             
             // 获取选中方法的数据
-            const methodData = {"No Finetuning": ["no_finetuning", "jpg"], "Linear Encoding": ["linear", "jpg"], "PQ Encoding": ["pq", "jpg"], "PU21 Encoding (Default)": ["pu21", "jpg"]};
+            const methodData = {"No Finetuning": ["no_finetuning", "jpg"], "Linear Encoding": ["linear", "jpg"], "Gamma Encoding": ["gamma", "jpg"], "Log Encoding": ["log", "jpg"], "PQ Encoding": ["pq", "jpg"], "PU21 Encoding (Default)": ["pu21", "jpg"]};
             const methodNames = Object.keys(methodData);
             const selectedMethodIndex = methodNames.indexOf(selectedMethod);
             
@@ -5609,7 +7411,7 @@
                     // 统计可见的方法
                     const cells = imageRow.querySelectorAll('.image-cell');
                     cells.forEach((cell, cellIndex) => {
-                        const methodName = Object.keys({"No Finetuning": ["no_finetuning", "jpg"], "Linear Encoding": ["linear", "jpg"], "PQ Encoding": ["pq", "jpg"], "PU21 Encoding (Default)": ["pu21", "jpg"]})[cellIndex];
+                        const methodName = Object.keys({"No Finetuning": ["no_finetuning", "jpg"], "Linear Encoding": ["linear", "jpg"], "Gamma Encoding": ["gamma", "jpg"], "Log Encoding": ["log", "jpg"], "PQ Encoding": ["pq", "jpg"], "PU21 Encoding (Default)": ["pu21", "jpg"]})[cellIndex];
                         visibleMethods.add(methodName);
                     });
                 }
@@ -5627,7 +7429,7 @@
                 // 表格模式统计 - 只计算prompt行
                 const visiblePromptRows = document.querySelectorAll('#tableBody tr.prompt-row:not([style*="display: none"])');
                 visiblePrompts = visiblePromptRows.length;
-                visibleMethods = Object.keys({"No Finetuning": ["no_finetuning", "jpg"], "Linear Encoding": ["linear", "jpg"], "PQ Encoding": ["pq", "jpg"], "PU21 Encoding (Default)": ["pu21", "jpg"]}).length;
+                visibleMethods = Object.keys({"No Finetuning": ["no_finetuning", "jpg"], "Linear Encoding": ["linear", "jpg"], "Gamma Encoding": ["gamma", "jpg"], "Log Encoding": ["log", "jpg"], "PQ Encoding": ["pq", "jpg"], "PU21 Encoding (Default)": ["pu21", "jpg"]}).length;
             } else {
                 // 网格模式统计
                 const gridItems = document.querySelectorAll('.grid-container .grid-item');

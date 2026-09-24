@@ -1,0 +1,3856 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HDR Image Comparison</title>
+    <style>
+        :root {
+            --primary-color: #374151;
+            --secondary-color: #6b7280;
+            --accent-color: #111827;
+            --success-color: #059669;
+            --warning-color: #d97706;
+            --danger-color: #dc2626;
+            --background-color: #f9fafb;
+            --card-background: #ffffff;
+            --text-primary: #111827;
+            --text-secondary: #6b7280;
+            --border-color: #e5e7eb;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --radius-sm: 0.375rem;
+            --radius-md: 0.5rem;
+            --radius-lg: 0.75rem;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: var(--background-color);
+            min-height: 100vh;
+            padding: 1rem 0.5rem;  /* 从 2rem 1rem 减少到 1rem 0.5rem */
+            color: var(--text-primary);
+        }
+
+        .container {
+            max-width: 100%;  /* 从 1400px 改为 100% */
+            margin: 0 auto;
+            padding: 0 0.5rem;  /* 新增少量内边距 */
+        }
+
+        .header {
+            position: relative; /* 为绝对定位的 Home 按钮提供参考 */
+            background: var(--card-background);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem 1rem;  /* 从 2rem 减少到 1.5rem 1rem */
+            margin-bottom: 1rem;  /* 从 2rem 减少到 1rem */
+            box-shadow: var(--shadow-lg);
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .controls {
+            background: var(--card-background);
+            border-radius: var(--radius-lg);
+            padding: 1rem;  /* 从 1.5rem 减少到 1rem */
+            margin-bottom: 1rem;  /* 从 2rem 减少到 1rem */
+            box-shadow: var(--shadow-md);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .control-group label {
+            font-weight: 500;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .control-input {
+            padding: 0.5rem 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+
+        .control-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgb(37 99 235 / 0.1);
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-color);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary-color);
+        }
+
+        .stats {
+            display: flex;
+            gap: 0.5rem;  /* 从 1rem 减少到 0.5rem */
+            margin-bottom: 1rem;  /* 从 2rem 减少到 1rem */
+        }
+
+        .stat-card {
+            background: var(--card-background);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            flex: 1;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .stat-card .number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .stat-card .label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .comparison-container {
+            background: var(--card-background);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+            margin: 0;  /* 新增：去除默认边距 */
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+            margin: 0;  /* 新增：去除表格边距 */
+        }
+
+        .method-header {
+            background: var(--primary-color);
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            font-weight: 600;
+            font-size: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .image-row {
+            border-bottom: 1px solid var(--border-color);
+            transition: background-color 0.2s ease;
+        }
+
+        .image-row:hover {
+            background-color: #f8fafc;
+        }
+
+        .image-cell {
+            padding: 0.25rem;
+            text-align: center;
+            vertical-align: top;
+            box-sizing: border-box;
+        }
+
+        .image-container {
+            position: relative;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            background: var(--background-color);
+            transition: all 0.3s ease;
+            max-width: 100%;
+            width: 100%;  /* 新增：确保容器占满可用宽度 */
+        }
+
+        .image-container:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .image-container img {
+            width: 100%;
+            max-width: 100%;
+            object-fit: cover;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            display: block;
+            height: auto;
+            aspect-ratio: 1 / 1;  /* 新增：保持正方形比例 */
+        }
+
+        .image-container img:hover {
+            transform: scale(1.02);
+        }
+
+        /* 质量分数样式 */
+        .quality-scores {
+            background: #f8fafc;
+            padding: 0.5rem;
+            display: flex;
+            gap: 0.5rem;
+            justify-content: space-between;
+            border-top: 1px solid var(--border-color);
+            font-size: 0.75rem;
+        }
+
+        .score-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+        }
+
+        .score-label {
+            color: var(--text-secondary);
+            font-weight: 500;
+            margin-bottom: 0.2rem;
+        }
+
+        .score-value {
+            color: var(--text-primary);
+            font-weight: 700;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            background: white;
+            padding: 0.2rem 0.4rem;
+            border-radius: 0.25rem;
+            border: 1px solid var(--border-color);
+            min-width: 4rem;
+            text-align: center;
+        }
+
+        /* 美化的Tooltip样式 */
+        .prompt-label:hover::after {
+            content: attr(title);
+            position: absolute;
+            bottom: calc(100% + 10px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #1f2937, #374151);
+            color: white;
+            padding: 1rem 1.25rem;
+            border-radius: var(--radius-md);
+            font-size: 0.85rem;
+            font-weight: 400;
+            white-space: normal;
+            word-wrap: break-word;
+            max-width: 350px;
+            min-width: 200px;
+            width: max-content;
+            z-index: 1000;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            line-height: 1.5;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            animation: tooltipFadeIn 0.2s ease-out;
+        }
+
+        .prompt-label:hover::before {
+            content: '';
+            position: absolute;
+            bottom: calc(100% + 4px);
+            left: 50%;
+            transform: translateX(-50%);
+            border: 6px solid transparent;
+            border-top-color: #1f2937;
+            z-index: 1001;
+            animation: tooltipFadeIn 0.2s ease-out;
+        }
+
+        @keyframes tooltipFadeIn {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(5px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        /* 网格布局中的prompt样式 */
+        .grid-item .prompt-label {
+            font-size: 0.75rem;
+            padding: 0.4rem;
+        }
+
+        .grid-item .prompt-number {
+            font-size: 0.65rem;
+            padding: 0.15rem 0.3rem;
+        }
+
+        /* 说明文字块样式 */
+        .description {
+            background: var(--card-background);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem 1rem;
+            margin-bottom: 1rem;
+            box-shadow: var(--shadow-md);
+            text-align: left;
+        }
+
+        .description h3 {
+            color: var(--text-primary);
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+
+        .description p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-bottom: 0.5rem;
+        }
+
+        .description p:last-child {
+            margin-bottom: 0;
+        }
+
+        .description ul {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-left: 1.5rem;
+        }
+
+        .description li {
+            margin-bottom: 0.25rem;
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .description {
+                padding: 1rem 0.5rem;
+                margin-bottom: 0.5rem;
+            }
+
+            .description h3 {
+                font-size: 1.1rem;
+            }
+
+            .description p, .description ul {
+                font-size: 0.9rem;
+            }
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .prompt-label {
+                font-size: 0.7rem;
+                padding: 0.4rem;
+            }
+            
+            .prompt-number {
+                font-size: 0.6rem;
+            }
+            
+            .prompt-label:hover::after {
+                max-width: 280px;
+                min-width: 150px;
+                font-size: 0.8rem;
+                padding: 0.875rem 1rem;
+                bottom: calc(100% + 8px);
+            }
+            
+            .prompt-label:hover::before {
+                bottom: calc(100% + 2px);
+                border-width: 5px;
+            }
+
+            .quality-scores {
+                font-size: 0.7rem;
+                padding: 0.4rem;
+                gap: 0.3rem;
+            }
+
+            .score-value {
+                font-size: 0.7rem;
+                padding: 0.15rem 0.3rem;
+                min-width: 3.5rem;
+            }
+
+            .image-cell {
+                padding: 0.1rem;  /* 移动端进一步减少 padding */
+            }
+        }
+
+        .method-label {
+            padding: 0.5rem;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            background: var(--background-color);
+        }
+
+        /* Home Button Style */
+        .home-btn {
+            position: absolute;
+            left: 1.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: var(--secondary-color);
+            color: white;
+            border-radius: var(--radius-sm);
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+
+        .home-btn:hover {
+            background: var(--primary-color);
+            transform: translateY(-50%) translateX(-2px);
+        }
+
+        @media (max-width: 768px) {
+            .home-btn {
+                position: static;
+                display: inline-flex;
+                margin-bottom: 1rem;
+                transform: none;
+            }
+            
+            .home-btn:hover {
+                transform: translateY(-2px);
+            }
+        }
+
+        /* 新增prompt行样式 */
+        .prompt-row {
+            background: var(--background-color);
+        }
+
+        .prompt-cell {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .prompt-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            background: var(--card-background);
+            padding: 0.75rem;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .prompt-header .prompt-number {
+            background: var(--primary-color);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.8rem;
+            flex-shrink: 0;
+            font-weight: 700;
+        }
+
+        .prompt-header .prompt-text {
+            flex: 1;
+            line-height: 1.4;
+            word-wrap: break-word;
+            font-size: 0.9rem;
+        }
+
+        /* 响应式调整prompt-header */
+        @media (max-width: 768px) {
+            .prompt-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+                padding: 0.6rem;
+            }
+            
+            .prompt-header .prompt-text {
+                font-size: 0.85rem;
+            }
+            
+            .prompt-cell {
+                padding: 0.5rem;
+            }
+        }
+
+        .missing-image {
+            width: 100%;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #f9fafb;
+            border: 2px dashed var(--border-color);
+            color: var(--text-secondary);
+            margin: 0.5rem 0;
+            box-sizing: border-box;
+        }
+
+        .missing-image .icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            opacity: 0.5;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.95);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            position: relative;
+            margin: 5rem auto;
+            width: 768px;
+            height: 768px;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .modal-image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+        }
+
+        .modal-header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
+            color: white;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-info {
+            font-weight: 500;
+        }
+
+        .modal-controls {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .modal-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 0.5rem;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.9rem;
+        }
+
+        .modal-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            transition: color 0.2s ease;
+        }
+
+        .close:hover {
+            color: #ef4444;
+        }
+
+        /* Loading Spinner */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(59, 130, 246, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--primary-color);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            body {
+                padding: 0.5rem 0.25rem;  /* 移动端进一步减少 */
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .stats {
+                flex-direction: column;
+            }
+
+            .image-container img {
+                height: auto;
+            }
+
+            .missing-image {
+                min-height: 150px;
+            }
+
+            .modal-content {
+                width: 90%;
+                height: 90vw;
+                margin: 2rem auto;
+            }
+        }
+
+        /* Image comparison feature */
+        .comparison-mode .image-container {
+            border: 3px solid transparent;
+            cursor: pointer;
+        }
+
+        .comparison-mode .image-container.selected {
+            border-color: var(--text-primary);
+            background: var(--text-primary);
+        }
+
+        .comparison-mode .image-container.selected .prompt-label {
+            background: var(--text-primary);
+        }
+
+        /* Fullscreen styles */
+        .fullscreen {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            max-width: none !important;
+            max-height: none !important;
+            margin: 0 !important;
+            z-index: 1001 !important;
+        }
+
+        .fullscreen .modal-image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        /* 网格布局样式 */
+        .grid-layout {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 0.5rem;  /* 从 1rem 减少到 0.5rem */
+            padding: 0.5rem;  /* 从 1rem 减少到 0.5rem */
+        }
+
+        .grid-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .grid-item .image-container {
+            margin-bottom: 0;
+        }
+
+        /* 隐藏表格布局当使用网格时 */
+        .grid-layout .comparison-table {
+            display: none;
+        }
+
+        /* 网格模式下的响应式 */
+        @media (max-width: 768px) {
+            .grid-container {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 0.25rem;  /* 进一步减少 */
+                padding: 0.25rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .grid-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="../home.html" class="home-btn">
+                <span>&larr;</span> Back to Home
+            </a>
+            <h1>LDR-to-HDR Reconstruction</h1>
+            <!-- <p>Comparing 5 different methods across 50 prompts.</p> -->
+        </div>
+
+        <!-- 新增的说明文字块 -->
+        <div class="description">
+            <h3>Results without cherry-picking.</h3>
+            <p>The prompt is set to empty (" ") for fair comparison.</p>
+            <p>Click on any image to view it in full size.</p>
+        </div>
+
+        <div class="controls">
+            <div class="control-group">
+                <label for="promptFilter">Filter Prompts:</label>
+                <input type="text" id="promptFilter" class="control-input" placeholder="e.g., 1,5,10-15">
+            </div>
+            <div class="control-group">
+                <label for="methodFilter">Show Methods:</label>
+                <select id="methodFilter" class="control-input">
+                    <option value="all">All Methods</option>
+                    <option value="Input LDR">Input LDR</option><option value="LEDiff">LEDiff</option><option value="Bracket Diffusion">Bracket Diffusion</option><option value="Ours">Ours</option><option value="GT HDR">GT HDR</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <button class="btn btn-secondary" onclick="resetFilters()">Reset Filters</button>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="number" id="visiblePrompts">50</div>
+                <div class="label">Visible Prompts</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="visibleMethods">5</div>
+                <div class="label">Active Methods</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="totalImages">250</div>
+                <div class="label">Total Images</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="missingImages">0</div>
+                <div class="label">Missing Images</div>
+            </div>
+        </div>
+
+        <div class="comparison-container">
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th class="method-header">Input LDR</th><th class="method-header">LEDiff</th><th class="method-header">Bracket Diffusion</th><th class="method-header">Ours</th><th class="method-header">GT HDR</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    
+            <tr class="prompt-row">
+                <td colspan="5" class="prompt-cell">
+                    <div class="prompt-header">
+                        <span class="prompt-number">Example #1</span>
+                        <span class="prompt-text"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr class="image-row">
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="input_ldr/test_001.jpg" alt="Input LDR - Prompt 1" 
+                             onclick="openModal('input_ldr/test_001.jpg', 1, 'Input LDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Input LDR</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="lediff/test_001.jpg" alt="LEDiff - Prompt 1" 
+                             onclick="openModal('lediff/test_001.jpg', 1, 'LEDiff')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">LEDiff</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="bracket/test_001.jpg" alt="Bracket Diffusion - Prompt 1" 
+                             onclick="openModal('bracket/test_001.jpg', 1, 'Bracket Diffusion')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Bracket Diffusion</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours/test_001.jpg" alt="Ours - Prompt 1" 
+                             onclick="openModal('ours/test_001.jpg', 1, 'Ours')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Ours</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="gt_hdr/test_001.jpg" alt="GT HDR - Prompt 1" 
+                             onclick="openModal('gt_hdr/test_001.jpg', 1, 'GT HDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">GT HDR</div>
+                    </div>
+                </td>
+            </tr>
+            <tr class="prompt-row">
+                <td colspan="5" class="prompt-cell">
+                    <div class="prompt-header">
+                        <span class="prompt-number">Example #2</span>
+                        <span class="prompt-text"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr class="image-row">
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="input_ldr/test_002.jpg" alt="Input LDR - Prompt 2" 
+                             onclick="openModal('input_ldr/test_002.jpg', 2, 'Input LDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Input LDR</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="lediff/test_002.jpg" alt="LEDiff - Prompt 2" 
+                             onclick="openModal('lediff/test_002.jpg', 2, 'LEDiff')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">LEDiff</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="bracket/test_002.jpg" alt="Bracket Diffusion - Prompt 2" 
+                             onclick="openModal('bracket/test_002.jpg', 2, 'Bracket Diffusion')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Bracket Diffusion</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours/test_002.jpg" alt="Ours - Prompt 2" 
+                             onclick="openModal('ours/test_002.jpg', 2, 'Ours')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Ours</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="gt_hdr/test_002.jpg" alt="GT HDR - Prompt 2" 
+                             onclick="openModal('gt_hdr/test_002.jpg', 2, 'GT HDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">GT HDR</div>
+                    </div>
+                </td>
+            </tr>
+            <tr class="prompt-row">
+                <td colspan="5" class="prompt-cell">
+                    <div class="prompt-header">
+                        <span class="prompt-number">Example #3</span>
+                        <span class="prompt-text"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr class="image-row">
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="input_ldr/test_003.jpg" alt="Input LDR - Prompt 3" 
+                             onclick="openModal('input_ldr/test_003.jpg', 3, 'Input LDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Input LDR</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="lediff/test_003.jpg" alt="LEDiff - Prompt 3" 
+                             onclick="openModal('lediff/test_003.jpg', 3, 'LEDiff')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">LEDiff</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="bracket/test_003.jpg" alt="Bracket Diffusion - Prompt 3" 
+                             onclick="openModal('bracket/test_003.jpg', 3, 'Bracket Diffusion')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Bracket Diffusion</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours/test_003.jpg" alt="Ours - Prompt 3" 
+                             onclick="openModal('ours/test_003.jpg', 3, 'Ours')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Ours</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="gt_hdr/test_003.jpg" alt="GT HDR - Prompt 3" 
+                             onclick="openModal('gt_hdr/test_003.jpg', 3, 'GT HDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">GT HDR</div>
+                    </div>
+                </td>
+            </tr>
+            <tr class="prompt-row">
+                <td colspan="5" class="prompt-cell">
+                    <div class="prompt-header">
+                        <span class="prompt-number">Example #4</span>
+                        <span class="prompt-text"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr class="image-row">
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="input_ldr/test_004.jpg" alt="Input LDR - Prompt 4" 
+                             onclick="openModal('input_ldr/test_004.jpg', 4, 'Input LDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Input LDR</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="lediff/test_004.jpg" alt="LEDiff - Prompt 4" 
+                             onclick="openModal('lediff/test_004.jpg', 4, 'LEDiff')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">LEDiff</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="bracket/test_004.jpg" alt="Bracket Diffusion - Prompt 4" 
+                             onclick="openModal('bracket/test_004.jpg', 4, 'Bracket Diffusion')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Bracket Diffusion</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours/test_004.jpg" alt="Ours - Prompt 4" 
+                             onclick="openModal('ours/test_004.jpg', 4, 'Ours')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Ours</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="gt_hdr/test_004.jpg" alt="GT HDR - Prompt 4" 
+                             onclick="openModal('gt_hdr/test_004.jpg', 4, 'GT HDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">GT HDR</div>
+                    </div>
+                </td>
+            </tr>
+            <tr class="prompt-row">
+                <td colspan="5" class="prompt-cell">
+                    <div class="prompt-header">
+                        <span class="prompt-number">Example #5</span>
+                        <span class="prompt-text"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr class="image-row">
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="input_ldr/test_005.jpg" alt="Input LDR - Prompt 5" 
+                             onclick="openModal('input_ldr/test_005.jpg', 5, 'Input LDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Input LDR</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="lediff/test_005.jpg" alt="LEDiff - Prompt 5" 
+                             onclick="openModal('lediff/test_005.jpg', 5, 'LEDiff')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">LEDiff</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="bracket/test_005.jpg" alt="Bracket Diffusion - Prompt 5" 
+                             onclick="openModal('bracket/test_005.jpg', 5, 'Bracket Diffusion')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Bracket Diffusion</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours/test_005.jpg" alt="Ours - Prompt 5" 
+                             onclick="openModal('ours/test_005.jpg', 5, 'Ours')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Ours</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="gt_hdr/test_005.jpg" alt="GT HDR - Prompt 5" 
+                             onclick="openModal('gt_hdr/test_005.jpg', 5, 'GT HDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">GT HDR</div>
+                    </div>
+                </td>
+            </tr>
+            <tr class="prompt-row">
+                <td colspan="5" class="prompt-cell">
+                    <div class="prompt-header">
+                        <span class="prompt-number">Example #6</span>
+                        <span class="prompt-text"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr class="image-row">
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="input_ldr/test_006.jpg" alt="Input LDR - Prompt 6" 
+                             onclick="openModal('input_ldr/test_006.jpg', 6, 'Input LDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Input LDR</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="lediff/test_006.jpg" alt="LEDiff - Prompt 6" 
+                             onclick="openModal('lediff/test_006.jpg', 6, 'LEDiff')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">LEDiff</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="bracket/test_006.jpg" alt="Bracket Diffusion - Prompt 6" 
+                             onclick="openModal('bracket/test_006.jpg', 6, 'Bracket Diffusion')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Bracket Diffusion</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours/test_006.jpg" alt="Ours - Prompt 6" 
+                             onclick="openModal('ours/test_006.jpg', 6, 'Ours')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Ours</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="gt_hdr/test_006.jpg" alt="GT HDR - Prompt 6" 
+                             onclick="openModal('gt_hdr/test_006.jpg', 6, 'GT HDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">GT HDR</div>
+                    </div>
+                </td>
+            </tr>
+            <tr class="prompt-row">
+                <td colspan="5" class="prompt-cell">
+                    <div class="prompt-header">
+                        <span class="prompt-number">Example #7</span>
+                        <span class="prompt-text"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr class="image-row">
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="input_ldr/test_007.jpg" alt="Input LDR - Prompt 7" 
+                             onclick="openModal('input_ldr/test_007.jpg', 7, 'Input LDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Input LDR</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="lediff/test_007.jpg" alt="LEDiff - Prompt 7" 
+                             onclick="openModal('lediff/test_007.jpg', 7, 'LEDiff')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">LEDiff</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="bracket/test_007.jpg" alt="Bracket Diffusion - Prompt 7" 
+                             onclick="openModal('bracket/test_007.jpg', 7, 'Bracket Diffusion')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Bracket Diffusion</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours/test_007.jpg" alt="Ours - Prompt 7" 
+                             onclick="openModal('ours/test_007.jpg', 7, 'Ours')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Ours</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="gt_hdr/test_007.jpg" alt="GT HDR - Prompt 7" 
+                             onclick="openModal('gt_hdr/test_007.jpg', 7, 'GT HDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">GT HDR</div>
+                    </div>
+                </td>
+            </tr>
+            <tr class="prompt-row">
+                <td colspan="5" class="prompt-cell">
+                    <div class="prompt-header">
+                        <span class="prompt-number">Example #8</span>
+                        <span class="prompt-text"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr class="image-row">
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="input_ldr/test_008.jpg" alt="Input LDR - Prompt 8" 
+                             onclick="openModal('input_ldr/test_008.jpg', 8, 'Input LDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Input LDR</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="lediff/test_008.jpg" alt="LEDiff - Prompt 8" 
+                             onclick="openModal('lediff/test_008.jpg', 8, 'LEDiff')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">LEDiff</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="bracket/test_008.jpg" alt="Bracket Diffusion - Prompt 8" 
+                             onclick="openModal('bracket/test_008.jpg', 8, 'Bracket Diffusion')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Bracket Diffusion</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours/test_008.jpg" alt="Ours - Prompt 8" 
+                             onclick="openModal('ours/test_008.jpg', 8, 'Ours')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Ours</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="gt_hdr/test_008.jpg" alt="GT HDR - Prompt 8" 
+                             onclick="openModal('gt_hdr/test_008.jpg', 8, 'GT HDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">GT HDR</div>
+                    </div>
+                </td>
+            </tr>
+            <tr class="prompt-row">
+                <td colspan="5" class="prompt-cell">
+                    <div class="prompt-header">
+                        <span class="prompt-number">Example #9</span>
+                        <span class="prompt-text"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr class="image-row">
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="input_ldr/test_009.jpg" alt="Input LDR - Prompt 9" 
+                             onclick="openModal('input_ldr/test_009.jpg', 9, 'Input LDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Input LDR</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="lediff/test_009.jpg" alt="LEDiff - Prompt 9" 
+                             onclick="openModal('lediff/test_009.jpg', 9, 'LEDiff')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">LEDiff</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="bracket/test_009.jpg" alt="Bracket Diffusion - Prompt 9" 
+                             onclick="openModal('bracket/test_009.jpg', 9, 'Bracket Diffusion')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Bracket Diffusion</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours/test_009.jpg" alt="Ours - Prompt 9" 
+                             onclick="openModal('ours/test_009.jpg', 9, 'Ours')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Ours</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="gt_hdr/test_009.jpg" alt="GT HDR - Prompt 9" 
+                             onclick="openModal('gt_hdr/test_009.jpg', 9, 'GT HDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">GT HDR</div>
+                    </div>
+                </td>
+            </tr>
+            <tr class="prompt-row">
+                <td colspan="5" class="prompt-cell">
+                    <div class="prompt-header">
+                        <span class="prompt-number">Example #10</span>
+                        <span class="prompt-text"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr class="image-row">
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="input_ldr/test_010.jpg" alt="Input LDR - Prompt 10" 
+                             onclick="openModal('input_ldr/test_010.jpg', 10, 'Input LDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Input LDR</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="lediff/test_010.jpg" alt="LEDiff - Prompt 10" 
+                             onclick="openModal('lediff/test_010.jpg', 10, 'LEDiff')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">LEDiff</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="bracket/test_010.jpg" alt="Bracket Diffusion - Prompt 10" 
+                             onclick="openModal('bracket/test_010.jpg', 10, 'Bracket Diffusion')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Bracket Diffusion</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours/test_010.jpg" alt="Ours - Prompt 10" 
+                             onclick="openModal('ours/test_010.jpg', 10, 'Ours')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Ours</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="gt_hdr/test_010.jpg" alt="GT HDR - Prompt 10" 
+                             onclick="openModal('gt_hdr/test_010.jpg', 10, 'GT HDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">GT HDR</div>
+                    </div>
+                </td>
+            </tr>
+            <tr class="prompt-row">
+                <td colspan="5" class="prompt-cell">
+                    <div class="prompt-header">
+                        <span class="prompt-number">Example #11</span>
+                        <span class="prompt-text"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr class="image-row">
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="input_ldr/test_011.jpg" alt="Input LDR - Prompt 11" 
+                             onclick="openModal('input_ldr/test_011.jpg', 11, 'Input LDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Input LDR</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="lediff/test_011.jpg" alt="LEDiff - Prompt 11" 
+                             onclick="openModal('lediff/test_011.jpg', 11, 'LEDiff')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">LEDiff</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="bracket/test_011.jpg" alt="Bracket Diffusion - Prompt 11" 
+                             onclick="openModal('bracket/test_011.jpg', 11, 'Bracket Diffusion')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Bracket Diffusion</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours/test_011.jpg" alt="Ours - Prompt 11" 
+                             onclick="openModal('ours/test_011.jpg', 11, 'Ours')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Ours</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="gt_hdr/test_011.jpg" alt="GT HDR - Prompt 11" 
+                             onclick="openModal('gt_hdr/test_011.jpg', 11, 'GT HDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">GT HDR</div>
+                    </div>
+                </td>
+            </tr>
+            <tr class="prompt-row">
+                <td colspan="5" class="prompt-cell">
+                    <div class="prompt-header">
+                        <span class="prompt-number">Example #12</span>
+                        <span class="prompt-text"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr class="image-row">
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="input_ldr/test_012.jpg" alt="Input LDR - Prompt 12" 
+                             onclick="openModal('input_ldr/test_012.jpg', 12, 'Input LDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Input LDR</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="lediff/test_012.jpg" alt="LEDiff - Prompt 12" 
+                             onclick="openModal('lediff/test_012.jpg', 12, 'LEDiff')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">LEDiff</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="bracket/test_012.jpg" alt="Bracket Diffusion - Prompt 12" 
+                             onclick="openModal('bracket/test_012.jpg', 12, 'Bracket Diffusion')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Bracket Diffusion</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours/test_012.jpg" alt="Ours - Prompt 12" 
+                             onclick="openModal('ours/test_012.jpg', 12, 'Ours')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Ours</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="gt_hdr/test_012.jpg" alt="GT HDR - Prompt 12" 
+                             onclick="openModal('gt_hdr/test_012.jpg', 12, 'GT HDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">GT HDR</div>
+                    </div>
+                </td>
+            </tr>
+            <tr class="prompt-row">
+                <td colspan="5" class="prompt-cell">
+                    <div class="prompt-header">
+                        <span class="prompt-number">Example #13</span>
+                        <span class="prompt-text"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr class="image-row">
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="input_ldr/test_013.jpg" alt="Input LDR - Prompt 13" 
+                             onclick="openModal('input_ldr/test_013.jpg', 13, 'Input LDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Input LDR</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="lediff/test_013.jpg" alt="LEDiff - Prompt 13" 
+                             onclick="openModal('lediff/test_013.jpg', 13, 'LEDiff')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">LEDiff</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="bracket/test_013.jpg" alt="Bracket Diffusion - Prompt 13" 
+                             onclick="openModal('bracket/test_013.jpg', 13, 'Bracket Diffusion')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Bracket Diffusion</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours/test_013.jpg" alt="Ours - Prompt 13" 
+                             onclick="openModal('ours/test_013.jpg', 13, 'Ours')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Ours</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="gt_hdr/test_013.jpg" alt="GT HDR - Prompt 13" 
+                             onclick="openModal('gt_hdr/test_013.jpg', 13, 'GT HDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">GT HDR</div>
+                    </div>
+                </td>
+            </tr>
+            <tr class="prompt-row">
+                <td colspan="5" class="prompt-cell">
+                    <div class="prompt-header">
+                        <span class="prompt-number">Example #14</span>
+                        <span class="prompt-text"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr class="image-row">
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="input_ldr/test_014.jpg" alt="Input LDR - Prompt 14" 
+                             onclick="openModal('input_ldr/test_014.jpg', 14, 'Input LDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Input LDR</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="lediff/test_014.jpg" alt="LEDiff - Prompt 14" 
+                             onclick="openModal('lediff/test_014.jpg', 14, 'LEDiff')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">LEDiff</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="bracket/test_014.jpg" alt="Bracket Diffusion - Prompt 14" 
+                             onclick="openModal('bracket/test_014.jpg', 14, 'Bracket Diffusion')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Bracket Diffusion</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours/test_014.jpg" alt="Ours - Prompt 14" 
+                             onclick="openModal('ours/test_014.jpg', 14, 'Ours')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Ours</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="gt_hdr/test_014.jpg" alt="GT HDR - Prompt 14" 
+                             onclick="openModal('gt_hdr/test_014.jpg', 14, 'GT HDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">GT HDR</div>
+                    </div>
+                </td>
+            </tr>
+            <tr class="prompt-row">
+                <td colspan="5" class="prompt-cell">
+                    <div class="prompt-header">
+                        <span class="prompt-number">Example #15</span>
+                        <span class="prompt-text"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr class="image-row">
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="input_ldr/test_015.jpg" alt="Input LDR - Prompt 15" 
+                             onclick="openModal('input_ldr/test_015.jpg', 15, 'Input LDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Input LDR</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="lediff/test_015.jpg" alt="LEDiff - Prompt 15" 
+                             onclick="openModal('lediff/test_015.jpg', 15, 'LEDiff')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">LEDiff</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="bracket/test_015.jpg" alt="Bracket Diffusion - Prompt 15" 
+                             onclick="openModal('bracket/test_015.jpg', 15, 'Bracket Diffusion')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Bracket Diffusion</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours/test_015.jpg" alt="Ours - Prompt 15" 
+                             onclick="openModal('ours/test_015.jpg', 15, 'Ours')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Ours</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="gt_hdr/test_015.jpg" alt="GT HDR - Prompt 15" 
+                             onclick="openModal('gt_hdr/test_015.jpg', 15, 'GT HDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">GT HDR</div>
+                    </div>
+                </td>
+            </tr>
+            <tr class="prompt-row">
+                <td colspan="5" class="prompt-cell">
+                    <div class="prompt-header">
+                        <span class="prompt-number">Example #16</span>
+                        <span class="prompt-text"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr class="image-row">
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="input_ldr/test_016.jpg" alt="Input LDR - Prompt 16" 
+                             onclick="openModal('input_ldr/test_016.jpg', 16, 'Input LDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Input LDR</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="lediff/test_016.jpg" alt="LEDiff - Prompt 16" 
+                             onclick="openModal('lediff/test_016.jpg', 16, 'LEDiff')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">LEDiff</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="bracket/test_016.jpg" alt="Bracket Diffusion - Prompt 16" 
+                             onclick="openModal('bracket/test_016.jpg', 16, 'Bracket Diffusion')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Bracket Diffusion</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours/test_016.jpg" alt="Ours - Prompt 16" 
+                             onclick="openModal('ours/test_016.jpg', 16, 'Ours')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Ours</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="gt_hdr/test_016.jpg" alt="GT HDR - Prompt 16" 
+                             onclick="openModal('gt_hdr/test_016.jpg', 16, 'GT HDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">GT HDR</div>
+                    </div>
+                </td>
+            </tr>
+            <tr class="prompt-row">
+                <td colspan="5" class="prompt-cell">
+                    <div class="prompt-header">
+                        <span class="prompt-number">Example #17</span>
+                        <span class="prompt-text"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr class="image-row">
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="input_ldr/test_017.jpg" alt="Input LDR - Prompt 17" 
+                             onclick="openModal('input_ldr/test_017.jpg', 17, 'Input LDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Input LDR</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="lediff/test_017.jpg" alt="LEDiff - Prompt 17" 
+                             onclick="openModal('lediff/test_017.jpg', 17, 'LEDiff')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">LEDiff</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="bracket/test_017.jpg" alt="Bracket Diffusion - Prompt 17" 
+                             onclick="openModal('bracket/test_017.jpg', 17, 'Bracket Diffusion')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Bracket Diffusion</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours/test_017.jpg" alt="Ours - Prompt 17" 
+                             onclick="openModal('ours/test_017.jpg', 17, 'Ours')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Ours</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="gt_hdr/test_017.jpg" alt="GT HDR - Prompt 17" 
+                             onclick="openModal('gt_hdr/test_017.jpg', 17, 'GT HDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">GT HDR</div>
+                    </div>
+                </td>
+            </tr>
+            <tr class="prompt-row">
+                <td colspan="5" class="prompt-cell">
+                    <div class="prompt-header">
+                        <span class="prompt-number">Example #18</span>
+                        <span class="prompt-text"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr class="image-row">
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="input_ldr/test_018.jpg" alt="Input LDR - Prompt 18" 
+                             onclick="openModal('input_ldr/test_018.jpg', 18, 'Input LDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Input LDR</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="lediff/test_018.jpg" alt="LEDiff - Prompt 18" 
+                             onclick="openModal('lediff/test_018.jpg', 18, 'LEDiff')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">LEDiff</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="bracket/test_018.jpg" alt="Bracket Diffusion - Prompt 18" 
+                             onclick="openModal('bracket/test_018.jpg', 18, 'Bracket Diffusion')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Bracket Diffusion</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours/test_018.jpg" alt="Ours - Prompt 18" 
+                             onclick="openModal('ours/test_018.jpg', 18, 'Ours')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Ours</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="gt_hdr/test_018.jpg" alt="GT HDR - Prompt 18" 
+                             onclick="openModal('gt_hdr/test_018.jpg', 18, 'GT HDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">GT HDR</div>
+                    </div>
+                </td>
+            </tr>
+            <tr class="prompt-row">
+                <td colspan="5" class="prompt-cell">
+                    <div class="prompt-header">
+                        <span class="prompt-number">Example #19</span>
+                        <span class="prompt-text"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr class="image-row">
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="input_ldr/test_019.jpg" alt="Input LDR - Prompt 19" 
+                             onclick="openModal('input_ldr/test_019.jpg', 19, 'Input LDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Input LDR</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="lediff/test_019.jpg" alt="LEDiff - Prompt 19" 
+                             onclick="openModal('lediff/test_019.jpg', 19, 'LEDiff')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">LEDiff</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="bracket/test_019.jpg" alt="Bracket Diffusion - Prompt 19" 
+                             onclick="openModal('bracket/test_019.jpg', 19, 'Bracket Diffusion')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Bracket Diffusion</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours/test_019.jpg" alt="Ours - Prompt 19" 
+                             onclick="openModal('ours/test_019.jpg', 19, 'Ours')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Ours</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="gt_hdr/test_019.jpg" alt="GT HDR - Prompt 19" 
+                             onclick="openModal('gt_hdr/test_019.jpg', 19, 'GT HDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">GT HDR</div>
+                    </div>
+                </td>
+            </tr>
+            <tr class="prompt-row">
+                <td colspan="5" class="prompt-cell">
+                    <div class="prompt-header">
+                        <span class="prompt-number">Example #20</span>
+                        <span class="prompt-text"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr class="image-row">
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="input_ldr/test_020.jpg" alt="Input LDR - Prompt 20" 
+                             onclick="openModal('input_ldr/test_020.jpg', 20, 'Input LDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Input LDR</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="lediff/test_020.jpg" alt="LEDiff - Prompt 20" 
+                             onclick="openModal('lediff/test_020.jpg', 20, 'LEDiff')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">LEDiff</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="bracket/test_020.jpg" alt="Bracket Diffusion - Prompt 20" 
+                             onclick="openModal('bracket/test_020.jpg', 20, 'Bracket Diffusion')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Bracket Diffusion</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours/test_020.jpg" alt="Ours - Prompt 20" 
+                             onclick="openModal('ours/test_020.jpg', 20, 'Ours')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Ours</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="gt_hdr/test_020.jpg" alt="GT HDR - Prompt 20" 
+                             onclick="openModal('gt_hdr/test_020.jpg', 20, 'GT HDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">GT HDR</div>
+                    </div>
+                </td>
+            </tr>
+            <tr class="prompt-row">
+                <td colspan="5" class="prompt-cell">
+                    <div class="prompt-header">
+                        <span class="prompt-number">Example #21</span>
+                        <span class="prompt-text"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr class="image-row">
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="input_ldr/test_021.jpg" alt="Input LDR - Prompt 21" 
+                             onclick="openModal('input_ldr/test_021.jpg', 21, 'Input LDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Input LDR</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="lediff/test_021.jpg" alt="LEDiff - Prompt 21" 
+                             onclick="openModal('lediff/test_021.jpg', 21, 'LEDiff')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">LEDiff</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="bracket/test_021.jpg" alt="Bracket Diffusion - Prompt 21" 
+                             onclick="openModal('bracket/test_021.jpg', 21, 'Bracket Diffusion')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Bracket Diffusion</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours/test_021.jpg" alt="Ours - Prompt 21" 
+                             onclick="openModal('ours/test_021.jpg', 21, 'Ours')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Ours</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="gt_hdr/test_021.jpg" alt="GT HDR - Prompt 21" 
+                             onclick="openModal('gt_hdr/test_021.jpg', 21, 'GT HDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">GT HDR</div>
+                    </div>
+                </td>
+            </tr>
+            <tr class="prompt-row">
+                <td colspan="5" class="prompt-cell">
+                    <div class="prompt-header">
+                        <span class="prompt-number">Example #22</span>
+                        <span class="prompt-text"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr class="image-row">
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="input_ldr/test_022.jpg" alt="Input LDR - Prompt 22" 
+                             onclick="openModal('input_ldr/test_022.jpg', 22, 'Input LDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Input LDR</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="lediff/test_022.jpg" alt="LEDiff - Prompt 22" 
+                             onclick="openModal('lediff/test_022.jpg', 22, 'LEDiff')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">LEDiff</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="bracket/test_022.jpg" alt="Bracket Diffusion - Prompt 22" 
+                             onclick="openModal('bracket/test_022.jpg', 22, 'Bracket Diffusion')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Bracket Diffusion</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours/test_022.jpg" alt="Ours - Prompt 22" 
+                             onclick="openModal('ours/test_022.jpg', 22, 'Ours')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Ours</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="gt_hdr/test_022.jpg" alt="GT HDR - Prompt 22" 
+                             onclick="openModal('gt_hdr/test_022.jpg', 22, 'GT HDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">GT HDR</div>
+                    </div>
+                </td>
+            </tr>
+            <tr class="prompt-row">
+                <td colspan="5" class="prompt-cell">
+                    <div class="prompt-header">
+                        <span class="prompt-number">Example #23</span>
+                        <span class="prompt-text"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr class="image-row">
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="input_ldr/test_023.jpg" alt="Input LDR - Prompt 23" 
+                             onclick="openModal('input_ldr/test_023.jpg', 23, 'Input LDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Input LDR</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="lediff/test_023.jpg" alt="LEDiff - Prompt 23" 
+                             onclick="openModal('lediff/test_023.jpg', 23, 'LEDiff')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">LEDiff</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="bracket/test_023.jpg" alt="Bracket Diffusion - Prompt 23" 
+                             onclick="openModal('bracket/test_023.jpg', 23, 'Bracket Diffusion')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Bracket Diffusion</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours/test_023.jpg" alt="Ours - Prompt 23" 
+                             onclick="openModal('ours/test_023.jpg', 23, 'Ours')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Ours</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="gt_hdr/test_023.jpg" alt="GT HDR - Prompt 23" 
+                             onclick="openModal('gt_hdr/test_023.jpg', 23, 'GT HDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">GT HDR</div>
+                    </div>
+                </td>
+            </tr>
+            <tr class="prompt-row">
+                <td colspan="5" class="prompt-cell">
+                    <div class="prompt-header">
+                        <span class="prompt-number">Example #24</span>
+                        <span class="prompt-text"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr class="image-row">
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="input_ldr/test_024.jpg" alt="Input LDR - Prompt 24" 
+                             onclick="openModal('input_ldr/test_024.jpg', 24, 'Input LDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Input LDR</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="lediff/test_024.jpg" alt="LEDiff - Prompt 24" 
+                             onclick="openModal('lediff/test_024.jpg', 24, 'LEDiff')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">LEDiff</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="bracket/test_024.jpg" alt="Bracket Diffusion - Prompt 24" 
+                             onclick="openModal('bracket/test_024.jpg', 24, 'Bracket Diffusion')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Bracket Diffusion</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours/test_024.jpg" alt="Ours - Prompt 24" 
+                             onclick="openModal('ours/test_024.jpg', 24, 'Ours')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Ours</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="gt_hdr/test_024.jpg" alt="GT HDR - Prompt 24" 
+                             onclick="openModal('gt_hdr/test_024.jpg', 24, 'GT HDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">GT HDR</div>
+                    </div>
+                </td>
+            </tr>
+            <tr class="prompt-row">
+                <td colspan="5" class="prompt-cell">
+                    <div class="prompt-header">
+                        <span class="prompt-number">Example #25</span>
+                        <span class="prompt-text"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr class="image-row">
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="input_ldr/test_025.jpg" alt="Input LDR - Prompt 25" 
+                             onclick="openModal('input_ldr/test_025.jpg', 25, 'Input LDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Input LDR</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="lediff/test_025.jpg" alt="LEDiff - Prompt 25" 
+                             onclick="openModal('lediff/test_025.jpg', 25, 'LEDiff')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">LEDiff</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="bracket/test_025.jpg" alt="Bracket Diffusion - Prompt 25" 
+                             onclick="openModal('bracket/test_025.jpg', 25, 'Bracket Diffusion')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Bracket Diffusion</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours/test_025.jpg" alt="Ours - Prompt 25" 
+                             onclick="openModal('ours/test_025.jpg', 25, 'Ours')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Ours</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="gt_hdr/test_025.jpg" alt="GT HDR - Prompt 25" 
+                             onclick="openModal('gt_hdr/test_025.jpg', 25, 'GT HDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">GT HDR</div>
+                    </div>
+                </td>
+            </tr>
+            <tr class="prompt-row">
+                <td colspan="5" class="prompt-cell">
+                    <div class="prompt-header">
+                        <span class="prompt-number">Example #26</span>
+                        <span class="prompt-text"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr class="image-row">
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="input_ldr/test_026.jpg" alt="Input LDR - Prompt 26" 
+                             onclick="openModal('input_ldr/test_026.jpg', 26, 'Input LDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Input LDR</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="lediff/test_026.jpg" alt="LEDiff - Prompt 26" 
+                             onclick="openModal('lediff/test_026.jpg', 26, 'LEDiff')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">LEDiff</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="bracket/test_026.jpg" alt="Bracket Diffusion - Prompt 26" 
+                             onclick="openModal('bracket/test_026.jpg', 26, 'Bracket Diffusion')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Bracket Diffusion</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours/test_026.jpg" alt="Ours - Prompt 26" 
+                             onclick="openModal('ours/test_026.jpg', 26, 'Ours')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Ours</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="gt_hdr/test_026.jpg" alt="GT HDR - Prompt 26" 
+                             onclick="openModal('gt_hdr/test_026.jpg', 26, 'GT HDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">GT HDR</div>
+                    </div>
+                </td>
+            </tr>
+            <tr class="prompt-row">
+                <td colspan="5" class="prompt-cell">
+                    <div class="prompt-header">
+                        <span class="prompt-number">Example #27</span>
+                        <span class="prompt-text"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr class="image-row">
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="input_ldr/test_027.jpg" alt="Input LDR - Prompt 27" 
+                             onclick="openModal('input_ldr/test_027.jpg', 27, 'Input LDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Input LDR</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="lediff/test_027.jpg" alt="LEDiff - Prompt 27" 
+                             onclick="openModal('lediff/test_027.jpg', 27, 'LEDiff')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">LEDiff</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="bracket/test_027.jpg" alt="Bracket Diffusion - Prompt 27" 
+                             onclick="openModal('bracket/test_027.jpg', 27, 'Bracket Diffusion')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Bracket Diffusion</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours/test_027.jpg" alt="Ours - Prompt 27" 
+                             onclick="openModal('ours/test_027.jpg', 27, 'Ours')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Ours</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="gt_hdr/test_027.jpg" alt="GT HDR - Prompt 27" 
+                             onclick="openModal('gt_hdr/test_027.jpg', 27, 'GT HDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">GT HDR</div>
+                    </div>
+                </td>
+            </tr>
+            <tr class="prompt-row">
+                <td colspan="5" class="prompt-cell">
+                    <div class="prompt-header">
+                        <span class="prompt-number">Example #28</span>
+                        <span class="prompt-text"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr class="image-row">
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="input_ldr/test_028.jpg" alt="Input LDR - Prompt 28" 
+                             onclick="openModal('input_ldr/test_028.jpg', 28, 'Input LDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Input LDR</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="lediff/test_028.jpg" alt="LEDiff - Prompt 28" 
+                             onclick="openModal('lediff/test_028.jpg', 28, 'LEDiff')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">LEDiff</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="bracket/test_028.jpg" alt="Bracket Diffusion - Prompt 28" 
+                             onclick="openModal('bracket/test_028.jpg', 28, 'Bracket Diffusion')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Bracket Diffusion</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours/test_028.jpg" alt="Ours - Prompt 28" 
+                             onclick="openModal('ours/test_028.jpg', 28, 'Ours')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Ours</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="gt_hdr/test_028.jpg" alt="GT HDR - Prompt 28" 
+                             onclick="openModal('gt_hdr/test_028.jpg', 28, 'GT HDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">GT HDR</div>
+                    </div>
+                </td>
+            </tr>
+            <tr class="prompt-row">
+                <td colspan="5" class="prompt-cell">
+                    <div class="prompt-header">
+                        <span class="prompt-number">Example #29</span>
+                        <span class="prompt-text"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr class="image-row">
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="input_ldr/test_029.jpg" alt="Input LDR - Prompt 29" 
+                             onclick="openModal('input_ldr/test_029.jpg', 29, 'Input LDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Input LDR</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="lediff/test_029.jpg" alt="LEDiff - Prompt 29" 
+                             onclick="openModal('lediff/test_029.jpg', 29, 'LEDiff')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">LEDiff</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="bracket/test_029.jpg" alt="Bracket Diffusion - Prompt 29" 
+                             onclick="openModal('bracket/test_029.jpg', 29, 'Bracket Diffusion')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Bracket Diffusion</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours/test_029.jpg" alt="Ours - Prompt 29" 
+                             onclick="openModal('ours/test_029.jpg', 29, 'Ours')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Ours</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="gt_hdr/test_029.jpg" alt="GT HDR - Prompt 29" 
+                             onclick="openModal('gt_hdr/test_029.jpg', 29, 'GT HDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">GT HDR</div>
+                    </div>
+                </td>
+            </tr>
+            <tr class="prompt-row">
+                <td colspan="5" class="prompt-cell">
+                    <div class="prompt-header">
+                        <span class="prompt-number">Example #30</span>
+                        <span class="prompt-text"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr class="image-row">
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="input_ldr/test_030.jpg" alt="Input LDR - Prompt 30" 
+                             onclick="openModal('input_ldr/test_030.jpg', 30, 'Input LDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Input LDR</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="lediff/test_030.jpg" alt="LEDiff - Prompt 30" 
+                             onclick="openModal('lediff/test_030.jpg', 30, 'LEDiff')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">LEDiff</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="bracket/test_030.jpg" alt="Bracket Diffusion - Prompt 30" 
+                             onclick="openModal('bracket/test_030.jpg', 30, 'Bracket Diffusion')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Bracket Diffusion</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours/test_030.jpg" alt="Ours - Prompt 30" 
+                             onclick="openModal('ours/test_030.jpg', 30, 'Ours')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Ours</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="gt_hdr/test_030.jpg" alt="GT HDR - Prompt 30" 
+                             onclick="openModal('gt_hdr/test_030.jpg', 30, 'GT HDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">GT HDR</div>
+                    </div>
+                </td>
+            </tr>
+            <tr class="prompt-row">
+                <td colspan="5" class="prompt-cell">
+                    <div class="prompt-header">
+                        <span class="prompt-number">Example #31</span>
+                        <span class="prompt-text"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr class="image-row">
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="input_ldr/test_031.jpg" alt="Input LDR - Prompt 31" 
+                             onclick="openModal('input_ldr/test_031.jpg', 31, 'Input LDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Input LDR</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="lediff/test_031.jpg" alt="LEDiff - Prompt 31" 
+                             onclick="openModal('lediff/test_031.jpg', 31, 'LEDiff')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">LEDiff</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="bracket/test_031.jpg" alt="Bracket Diffusion - Prompt 31" 
+                             onclick="openModal('bracket/test_031.jpg', 31, 'Bracket Diffusion')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Bracket Diffusion</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours/test_031.jpg" alt="Ours - Prompt 31" 
+                             onclick="openModal('ours/test_031.jpg', 31, 'Ours')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Ours</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="gt_hdr/test_031.jpg" alt="GT HDR - Prompt 31" 
+                             onclick="openModal('gt_hdr/test_031.jpg', 31, 'GT HDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">GT HDR</div>
+                    </div>
+                </td>
+            </tr>
+            <tr class="prompt-row">
+                <td colspan="5" class="prompt-cell">
+                    <div class="prompt-header">
+                        <span class="prompt-number">Example #32</span>
+                        <span class="prompt-text"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr class="image-row">
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="input_ldr/test_032.jpg" alt="Input LDR - Prompt 32" 
+                             onclick="openModal('input_ldr/test_032.jpg', 32, 'Input LDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Input LDR</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="lediff/test_032.jpg" alt="LEDiff - Prompt 32" 
+                             onclick="openModal('lediff/test_032.jpg', 32, 'LEDiff')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">LEDiff</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="bracket/test_032.jpg" alt="Bracket Diffusion - Prompt 32" 
+                             onclick="openModal('bracket/test_032.jpg', 32, 'Bracket Diffusion')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Bracket Diffusion</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours/test_032.jpg" alt="Ours - Prompt 32" 
+                             onclick="openModal('ours/test_032.jpg', 32, 'Ours')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Ours</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="gt_hdr/test_032.jpg" alt="GT HDR - Prompt 32" 
+                             onclick="openModal('gt_hdr/test_032.jpg', 32, 'GT HDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">GT HDR</div>
+                    </div>
+                </td>
+            </tr>
+            <tr class="prompt-row">
+                <td colspan="5" class="prompt-cell">
+                    <div class="prompt-header">
+                        <span class="prompt-number">Example #33</span>
+                        <span class="prompt-text"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr class="image-row">
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="input_ldr/test_033.jpg" alt="Input LDR - Prompt 33" 
+                             onclick="openModal('input_ldr/test_033.jpg', 33, 'Input LDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Input LDR</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="lediff/test_033.jpg" alt="LEDiff - Prompt 33" 
+                             onclick="openModal('lediff/test_033.jpg', 33, 'LEDiff')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">LEDiff</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="bracket/test_033.jpg" alt="Bracket Diffusion - Prompt 33" 
+                             onclick="openModal('bracket/test_033.jpg', 33, 'Bracket Diffusion')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Bracket Diffusion</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours/test_033.jpg" alt="Ours - Prompt 33" 
+                             onclick="openModal('ours/test_033.jpg', 33, 'Ours')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Ours</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="gt_hdr/test_033.jpg" alt="GT HDR - Prompt 33" 
+                             onclick="openModal('gt_hdr/test_033.jpg', 33, 'GT HDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">GT HDR</div>
+                    </div>
+                </td>
+            </tr>
+            <tr class="prompt-row">
+                <td colspan="5" class="prompt-cell">
+                    <div class="prompt-header">
+                        <span class="prompt-number">Example #34</span>
+                        <span class="prompt-text"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr class="image-row">
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="input_ldr/test_034.jpg" alt="Input LDR - Prompt 34" 
+                             onclick="openModal('input_ldr/test_034.jpg', 34, 'Input LDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Input LDR</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="lediff/test_034.jpg" alt="LEDiff - Prompt 34" 
+                             onclick="openModal('lediff/test_034.jpg', 34, 'LEDiff')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">LEDiff</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="bracket/test_034.jpg" alt="Bracket Diffusion - Prompt 34" 
+                             onclick="openModal('bracket/test_034.jpg', 34, 'Bracket Diffusion')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Bracket Diffusion</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours/test_034.jpg" alt="Ours - Prompt 34" 
+                             onclick="openModal('ours/test_034.jpg', 34, 'Ours')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Ours</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="gt_hdr/test_034.jpg" alt="GT HDR - Prompt 34" 
+                             onclick="openModal('gt_hdr/test_034.jpg', 34, 'GT HDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">GT HDR</div>
+                    </div>
+                </td>
+            </tr>
+            <tr class="prompt-row">
+                <td colspan="5" class="prompt-cell">
+                    <div class="prompt-header">
+                        <span class="prompt-number">Example #35</span>
+                        <span class="prompt-text"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr class="image-row">
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="input_ldr/test_035.jpg" alt="Input LDR - Prompt 35" 
+                             onclick="openModal('input_ldr/test_035.jpg', 35, 'Input LDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Input LDR</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="lediff/test_035.jpg" alt="LEDiff - Prompt 35" 
+                             onclick="openModal('lediff/test_035.jpg', 35, 'LEDiff')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">LEDiff</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="bracket/test_035.jpg" alt="Bracket Diffusion - Prompt 35" 
+                             onclick="openModal('bracket/test_035.jpg', 35, 'Bracket Diffusion')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Bracket Diffusion</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours/test_035.jpg" alt="Ours - Prompt 35" 
+                             onclick="openModal('ours/test_035.jpg', 35, 'Ours')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Ours</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="gt_hdr/test_035.jpg" alt="GT HDR - Prompt 35" 
+                             onclick="openModal('gt_hdr/test_035.jpg', 35, 'GT HDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">GT HDR</div>
+                    </div>
+                </td>
+            </tr>
+            <tr class="prompt-row">
+                <td colspan="5" class="prompt-cell">
+                    <div class="prompt-header">
+                        <span class="prompt-number">Example #36</span>
+                        <span class="prompt-text"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr class="image-row">
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="input_ldr/test_036.jpg" alt="Input LDR - Prompt 36" 
+                             onclick="openModal('input_ldr/test_036.jpg', 36, 'Input LDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Input LDR</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="lediff/test_036.jpg" alt="LEDiff - Prompt 36" 
+                             onclick="openModal('lediff/test_036.jpg', 36, 'LEDiff')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">LEDiff</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="bracket/test_036.jpg" alt="Bracket Diffusion - Prompt 36" 
+                             onclick="openModal('bracket/test_036.jpg', 36, 'Bracket Diffusion')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Bracket Diffusion</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours/test_036.jpg" alt="Ours - Prompt 36" 
+                             onclick="openModal('ours/test_036.jpg', 36, 'Ours')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Ours</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="gt_hdr/test_036.jpg" alt="GT HDR - Prompt 36" 
+                             onclick="openModal('gt_hdr/test_036.jpg', 36, 'GT HDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">GT HDR</div>
+                    </div>
+                </td>
+            </tr>
+            <tr class="prompt-row">
+                <td colspan="5" class="prompt-cell">
+                    <div class="prompt-header">
+                        <span class="prompt-number">Example #37</span>
+                        <span class="prompt-text"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr class="image-row">
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="input_ldr/test_037.jpg" alt="Input LDR - Prompt 37" 
+                             onclick="openModal('input_ldr/test_037.jpg', 37, 'Input LDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Input LDR</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="lediff/test_037.jpg" alt="LEDiff - Prompt 37" 
+                             onclick="openModal('lediff/test_037.jpg', 37, 'LEDiff')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">LEDiff</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="bracket/test_037.jpg" alt="Bracket Diffusion - Prompt 37" 
+                             onclick="openModal('bracket/test_037.jpg', 37, 'Bracket Diffusion')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Bracket Diffusion</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours/test_037.jpg" alt="Ours - Prompt 37" 
+                             onclick="openModal('ours/test_037.jpg', 37, 'Ours')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Ours</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="gt_hdr/test_037.jpg" alt="GT HDR - Prompt 37" 
+                             onclick="openModal('gt_hdr/test_037.jpg', 37, 'GT HDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">GT HDR</div>
+                    </div>
+                </td>
+            </tr>
+            <tr class="prompt-row">
+                <td colspan="5" class="prompt-cell">
+                    <div class="prompt-header">
+                        <span class="prompt-number">Example #38</span>
+                        <span class="prompt-text"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr class="image-row">
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="input_ldr/test_038.jpg" alt="Input LDR - Prompt 38" 
+                             onclick="openModal('input_ldr/test_038.jpg', 38, 'Input LDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Input LDR</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="lediff/test_038.jpg" alt="LEDiff - Prompt 38" 
+                             onclick="openModal('lediff/test_038.jpg', 38, 'LEDiff')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">LEDiff</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="bracket/test_038.jpg" alt="Bracket Diffusion - Prompt 38" 
+                             onclick="openModal('bracket/test_038.jpg', 38, 'Bracket Diffusion')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Bracket Diffusion</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours/test_038.jpg" alt="Ours - Prompt 38" 
+                             onclick="openModal('ours/test_038.jpg', 38, 'Ours')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Ours</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="gt_hdr/test_038.jpg" alt="GT HDR - Prompt 38" 
+                             onclick="openModal('gt_hdr/test_038.jpg', 38, 'GT HDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">GT HDR</div>
+                    </div>
+                </td>
+            </tr>
+            <tr class="prompt-row">
+                <td colspan="5" class="prompt-cell">
+                    <div class="prompt-header">
+                        <span class="prompt-number">Example #39</span>
+                        <span class="prompt-text"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr class="image-row">
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="input_ldr/test_039.jpg" alt="Input LDR - Prompt 39" 
+                             onclick="openModal('input_ldr/test_039.jpg', 39, 'Input LDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Input LDR</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="lediff/test_039.jpg" alt="LEDiff - Prompt 39" 
+                             onclick="openModal('lediff/test_039.jpg', 39, 'LEDiff')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">LEDiff</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="bracket/test_039.jpg" alt="Bracket Diffusion - Prompt 39" 
+                             onclick="openModal('bracket/test_039.jpg', 39, 'Bracket Diffusion')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Bracket Diffusion</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours/test_039.jpg" alt="Ours - Prompt 39" 
+                             onclick="openModal('ours/test_039.jpg', 39, 'Ours')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Ours</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="gt_hdr/test_039.jpg" alt="GT HDR - Prompt 39" 
+                             onclick="openModal('gt_hdr/test_039.jpg', 39, 'GT HDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">GT HDR</div>
+                    </div>
+                </td>
+            </tr>
+            <tr class="prompt-row">
+                <td colspan="5" class="prompt-cell">
+                    <div class="prompt-header">
+                        <span class="prompt-number">Example #40</span>
+                        <span class="prompt-text"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr class="image-row">
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="input_ldr/test_040.jpg" alt="Input LDR - Prompt 40" 
+                             onclick="openModal('input_ldr/test_040.jpg', 40, 'Input LDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Input LDR</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="lediff/test_040.jpg" alt="LEDiff - Prompt 40" 
+                             onclick="openModal('lediff/test_040.jpg', 40, 'LEDiff')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">LEDiff</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="bracket/test_040.jpg" alt="Bracket Diffusion - Prompt 40" 
+                             onclick="openModal('bracket/test_040.jpg', 40, 'Bracket Diffusion')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Bracket Diffusion</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours/test_040.jpg" alt="Ours - Prompt 40" 
+                             onclick="openModal('ours/test_040.jpg', 40, 'Ours')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Ours</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="gt_hdr/test_040.jpg" alt="GT HDR - Prompt 40" 
+                             onclick="openModal('gt_hdr/test_040.jpg', 40, 'GT HDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">GT HDR</div>
+                    </div>
+                </td>
+            </tr>
+            <tr class="prompt-row">
+                <td colspan="5" class="prompt-cell">
+                    <div class="prompt-header">
+                        <span class="prompt-number">Example #41</span>
+                        <span class="prompt-text"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr class="image-row">
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="input_ldr/test_041.jpg" alt="Input LDR - Prompt 41" 
+                             onclick="openModal('input_ldr/test_041.jpg', 41, 'Input LDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Input LDR</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="lediff/test_041.jpg" alt="LEDiff - Prompt 41" 
+                             onclick="openModal('lediff/test_041.jpg', 41, 'LEDiff')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">LEDiff</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="bracket/test_041.jpg" alt="Bracket Diffusion - Prompt 41" 
+                             onclick="openModal('bracket/test_041.jpg', 41, 'Bracket Diffusion')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Bracket Diffusion</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours/test_041.jpg" alt="Ours - Prompt 41" 
+                             onclick="openModal('ours/test_041.jpg', 41, 'Ours')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Ours</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="gt_hdr/test_041.jpg" alt="GT HDR - Prompt 41" 
+                             onclick="openModal('gt_hdr/test_041.jpg', 41, 'GT HDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">GT HDR</div>
+                    </div>
+                </td>
+            </tr>
+            <tr class="prompt-row">
+                <td colspan="5" class="prompt-cell">
+                    <div class="prompt-header">
+                        <span class="prompt-number">Example #42</span>
+                        <span class="prompt-text"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr class="image-row">
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="input_ldr/test_042.jpg" alt="Input LDR - Prompt 42" 
+                             onclick="openModal('input_ldr/test_042.jpg', 42, 'Input LDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Input LDR</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="lediff/test_042.jpg" alt="LEDiff - Prompt 42" 
+                             onclick="openModal('lediff/test_042.jpg', 42, 'LEDiff')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">LEDiff</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="bracket/test_042.jpg" alt="Bracket Diffusion - Prompt 42" 
+                             onclick="openModal('bracket/test_042.jpg', 42, 'Bracket Diffusion')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Bracket Diffusion</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours/test_042.jpg" alt="Ours - Prompt 42" 
+                             onclick="openModal('ours/test_042.jpg', 42, 'Ours')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Ours</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="gt_hdr/test_042.jpg" alt="GT HDR - Prompt 42" 
+                             onclick="openModal('gt_hdr/test_042.jpg', 42, 'GT HDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">GT HDR</div>
+                    </div>
+                </td>
+            </tr>
+            <tr class="prompt-row">
+                <td colspan="5" class="prompt-cell">
+                    <div class="prompt-header">
+                        <span class="prompt-number">Example #43</span>
+                        <span class="prompt-text"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr class="image-row">
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="input_ldr/test_043.jpg" alt="Input LDR - Prompt 43" 
+                             onclick="openModal('input_ldr/test_043.jpg', 43, 'Input LDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Input LDR</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="lediff/test_043.jpg" alt="LEDiff - Prompt 43" 
+                             onclick="openModal('lediff/test_043.jpg', 43, 'LEDiff')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">LEDiff</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="bracket/test_043.jpg" alt="Bracket Diffusion - Prompt 43" 
+                             onclick="openModal('bracket/test_043.jpg', 43, 'Bracket Diffusion')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Bracket Diffusion</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours/test_043.jpg" alt="Ours - Prompt 43" 
+                             onclick="openModal('ours/test_043.jpg', 43, 'Ours')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Ours</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="gt_hdr/test_043.jpg" alt="GT HDR - Prompt 43" 
+                             onclick="openModal('gt_hdr/test_043.jpg', 43, 'GT HDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">GT HDR</div>
+                    </div>
+                </td>
+            </tr>
+            <tr class="prompt-row">
+                <td colspan="5" class="prompt-cell">
+                    <div class="prompt-header">
+                        <span class="prompt-number">Example #44</span>
+                        <span class="prompt-text"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr class="image-row">
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="input_ldr/test_044.jpg" alt="Input LDR - Prompt 44" 
+                             onclick="openModal('input_ldr/test_044.jpg', 44, 'Input LDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Input LDR</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="lediff/test_044.jpg" alt="LEDiff - Prompt 44" 
+                             onclick="openModal('lediff/test_044.jpg', 44, 'LEDiff')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">LEDiff</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="bracket/test_044.jpg" alt="Bracket Diffusion - Prompt 44" 
+                             onclick="openModal('bracket/test_044.jpg', 44, 'Bracket Diffusion')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Bracket Diffusion</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours/test_044.jpg" alt="Ours - Prompt 44" 
+                             onclick="openModal('ours/test_044.jpg', 44, 'Ours')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Ours</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="gt_hdr/test_044.jpg" alt="GT HDR - Prompt 44" 
+                             onclick="openModal('gt_hdr/test_044.jpg', 44, 'GT HDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">GT HDR</div>
+                    </div>
+                </td>
+            </tr>
+            <tr class="prompt-row">
+                <td colspan="5" class="prompt-cell">
+                    <div class="prompt-header">
+                        <span class="prompt-number">Example #45</span>
+                        <span class="prompt-text"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr class="image-row">
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="input_ldr/test_045.jpg" alt="Input LDR - Prompt 45" 
+                             onclick="openModal('input_ldr/test_045.jpg', 45, 'Input LDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Input LDR</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="lediff/test_045.jpg" alt="LEDiff - Prompt 45" 
+                             onclick="openModal('lediff/test_045.jpg', 45, 'LEDiff')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">LEDiff</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="bracket/test_045.jpg" alt="Bracket Diffusion - Prompt 45" 
+                             onclick="openModal('bracket/test_045.jpg', 45, 'Bracket Diffusion')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Bracket Diffusion</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours/test_045.jpg" alt="Ours - Prompt 45" 
+                             onclick="openModal('ours/test_045.jpg', 45, 'Ours')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Ours</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="gt_hdr/test_045.jpg" alt="GT HDR - Prompt 45" 
+                             onclick="openModal('gt_hdr/test_045.jpg', 45, 'GT HDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">GT HDR</div>
+                    </div>
+                </td>
+            </tr>
+            <tr class="prompt-row">
+                <td colspan="5" class="prompt-cell">
+                    <div class="prompt-header">
+                        <span class="prompt-number">Example #46</span>
+                        <span class="prompt-text"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr class="image-row">
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="input_ldr/test_046.jpg" alt="Input LDR - Prompt 46" 
+                             onclick="openModal('input_ldr/test_046.jpg', 46, 'Input LDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Input LDR</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="lediff/test_046.jpg" alt="LEDiff - Prompt 46" 
+                             onclick="openModal('lediff/test_046.jpg', 46, 'LEDiff')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">LEDiff</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="bracket/test_046.jpg" alt="Bracket Diffusion - Prompt 46" 
+                             onclick="openModal('bracket/test_046.jpg', 46, 'Bracket Diffusion')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Bracket Diffusion</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours/test_046.jpg" alt="Ours - Prompt 46" 
+                             onclick="openModal('ours/test_046.jpg', 46, 'Ours')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Ours</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="gt_hdr/test_046.jpg" alt="GT HDR - Prompt 46" 
+                             onclick="openModal('gt_hdr/test_046.jpg', 46, 'GT HDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">GT HDR</div>
+                    </div>
+                </td>
+            </tr>
+            <tr class="prompt-row">
+                <td colspan="5" class="prompt-cell">
+                    <div class="prompt-header">
+                        <span class="prompt-number">Example #47</span>
+                        <span class="prompt-text"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr class="image-row">
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="input_ldr/test_047.jpg" alt="Input LDR - Prompt 47" 
+                             onclick="openModal('input_ldr/test_047.jpg', 47, 'Input LDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Input LDR</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="lediff/test_047.jpg" alt="LEDiff - Prompt 47" 
+                             onclick="openModal('lediff/test_047.jpg', 47, 'LEDiff')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">LEDiff</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="bracket/test_047.jpg" alt="Bracket Diffusion - Prompt 47" 
+                             onclick="openModal('bracket/test_047.jpg', 47, 'Bracket Diffusion')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Bracket Diffusion</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours/test_047.jpg" alt="Ours - Prompt 47" 
+                             onclick="openModal('ours/test_047.jpg', 47, 'Ours')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Ours</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="gt_hdr/test_047.jpg" alt="GT HDR - Prompt 47" 
+                             onclick="openModal('gt_hdr/test_047.jpg', 47, 'GT HDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">GT HDR</div>
+                    </div>
+                </td>
+            </tr>
+            <tr class="prompt-row">
+                <td colspan="5" class="prompt-cell">
+                    <div class="prompt-header">
+                        <span class="prompt-number">Example #48</span>
+                        <span class="prompt-text"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr class="image-row">
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="input_ldr/test_048.jpg" alt="Input LDR - Prompt 48" 
+                             onclick="openModal('input_ldr/test_048.jpg', 48, 'Input LDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Input LDR</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="lediff/test_048.jpg" alt="LEDiff - Prompt 48" 
+                             onclick="openModal('lediff/test_048.jpg', 48, 'LEDiff')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">LEDiff</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="bracket/test_048.jpg" alt="Bracket Diffusion - Prompt 48" 
+                             onclick="openModal('bracket/test_048.jpg', 48, 'Bracket Diffusion')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Bracket Diffusion</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours/test_048.jpg" alt="Ours - Prompt 48" 
+                             onclick="openModal('ours/test_048.jpg', 48, 'Ours')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Ours</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="gt_hdr/test_048.jpg" alt="GT HDR - Prompt 48" 
+                             onclick="openModal('gt_hdr/test_048.jpg', 48, 'GT HDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">GT HDR</div>
+                    </div>
+                </td>
+            </tr>
+            <tr class="prompt-row">
+                <td colspan="5" class="prompt-cell">
+                    <div class="prompt-header">
+                        <span class="prompt-number">Example #49</span>
+                        <span class="prompt-text"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr class="image-row">
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="input_ldr/test_049.jpg" alt="Input LDR - Prompt 49" 
+                             onclick="openModal('input_ldr/test_049.jpg', 49, 'Input LDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Input LDR</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="lediff/test_049.jpg" alt="LEDiff - Prompt 49" 
+                             onclick="openModal('lediff/test_049.jpg', 49, 'LEDiff')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">LEDiff</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="bracket/test_049.jpg" alt="Bracket Diffusion - Prompt 49" 
+                             onclick="openModal('bracket/test_049.jpg', 49, 'Bracket Diffusion')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Bracket Diffusion</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours/test_049.jpg" alt="Ours - Prompt 49" 
+                             onclick="openModal('ours/test_049.jpg', 49, 'Ours')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Ours</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="gt_hdr/test_049.jpg" alt="GT HDR - Prompt 49" 
+                             onclick="openModal('gt_hdr/test_049.jpg', 49, 'GT HDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">GT HDR</div>
+                    </div>
+                </td>
+            </tr>
+            <tr class="prompt-row">
+                <td colspan="5" class="prompt-cell">
+                    <div class="prompt-header">
+                        <span class="prompt-number">Example #50</span>
+                        <span class="prompt-text"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr class="image-row">
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="input_ldr/test_050.jpg" alt="Input LDR - Prompt 50" 
+                             onclick="openModal('input_ldr/test_050.jpg', 50, 'Input LDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Input LDR</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="lediff/test_050.jpg" alt="LEDiff - Prompt 50" 
+                             onclick="openModal('lediff/test_050.jpg', 50, 'LEDiff')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">LEDiff</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="bracket/test_050.jpg" alt="Bracket Diffusion - Prompt 50" 
+                             onclick="openModal('bracket/test_050.jpg', 50, 'Bracket Diffusion')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Bracket Diffusion</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="ours/test_050.jpg" alt="Ours - Prompt 50" 
+                             onclick="openModal('ours/test_050.jpg', 50, 'Ours')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">Ours</div>
+                    </div>
+                </td>
+                <td class="image-cell">
+                    <div class="image-container">
+                        <img src="gt_hdr/test_050.jpg" alt="GT HDR - Prompt 50" 
+                             onclick="openModal('gt_hdr/test_050.jpg', 50, 'GT HDR')" 
+                             loading="lazy">
+                        
+                        <div class="method-label">GT HDR</div>
+                    </div>
+                </td>
+            </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="imageModal" class="modal">
+        <div class="modal-content" id="modalContent">
+            <div class="modal-header">
+                <div class="modal-info" id="modalInfo"></div>
+                <div class="modal-controls">
+                    <button class="modal-btn" onclick="downloadImage()" title="Download">📥</button>
+                    <button class="modal-btn" onclick="toggleFullscreen()" title="Fullscreen">⛶</button>
+                    <button class="close" onclick="closeModal()">&times;</button>
+                </div>
+            </div>
+            <img class="modal-image" id="modalImage" alt="Full size image">
+        </div>
+    </div>
+
+    <script>
+        let isFullscreen = false;
+        let qualityScores = {"Input LDR": {}, "LEDiff": {}, "Bracket Diffusion": {}, "Ours": {}, "GT HDR": {}};
+
+        // Modal functions
+        function openModal(imageSrc, promptNum, methodName) {
+            const modal = document.getElementById('imageModal');
+            const modalImg = document.getElementById('modalImage');
+            const modalInfo = document.getElementById('modalInfo');
+            
+            modal.style.display = 'block';
+            modalImg.src = imageSrc;
+            
+            // 显示分数信息
+            const scores = qualityScores[methodName];
+            const alignmentScore = scores?.alignment?.[promptNum] || 0;
+            const qualityScore = scores?.quality?.[promptNum] || 0;
+            
+            modalInfo.innerHTML = `
+                ${methodName} - Prompt ${promptNum}<br>
+                <small style="opacity: 0.8;">Text Alignment: ${alignmentScore.toFixed(4)} | Image Quality: ${qualityScore.toFixed(4)}</small>
+            `;
+            
+            // Store current image info for download
+            modalImg.dataset.promptNum = promptNum;
+            modalImg.dataset.methodName = methodName;
+        }
+
+        function closeModal() {
+            document.getElementById('imageModal').style.display = 'none';
+            if (isFullscreen) {
+                toggleFullscreen();
+            }
+        }
+
+        function downloadImage() {
+            const modalImg = document.getElementById('modalImage');
+            const link = document.createElement('a');
+            link.download = `${modalImg.dataset.methodName}_prompt_${modalImg.dataset.promptNum}`;
+            link.href = modalImg.src;
+            link.click();
+        }
+
+        function toggleFullscreen() {
+            const modalContent = document.getElementById('modalContent');
+            isFullscreen = !isFullscreen;
+            modalContent.classList.toggle('fullscreen', isFullscreen);
+        }
+
+        // Filtering functions
+        function applyFilters() {
+            const promptFilter = document.getElementById('promptFilter').value;
+            const methodFilter = document.getElementById('methodFilter').value;
+            const container = document.querySelector('.comparison-container');
+            
+            // 检查是否选择了单一方法
+            if (methodFilter !== 'all') {
+                switchToGridLayout(methodFilter, promptFilter);
+            } else {
+                switchToTableLayout(promptFilter);
+            }
+            
+            updateStats();
+        }
+
+        function switchToGridLayout(selectedMethod, promptFilter) {
+            const container = document.querySelector('.comparison-container');
+            container.classList.add('grid-layout');
+            
+            // 创建网格容器
+            let gridContainer = container.querySelector('.grid-container');
+            if (!gridContainer) {
+                gridContainer = document.createElement('div');
+                gridContainer.className = 'grid-container';
+                container.appendChild(gridContainer);
+            }
+            
+            // 清空网格容器
+            gridContainer.innerHTML = '';
+            
+            // 获取选中方法的数据
+            const methodData = {"Input LDR": ["input_ldr", "jpg"], "LEDiff": ["lediff", "jpg"], "Bracket Diffusion": ["bracket", "jpg"], "Ours": ["ours", "jpg"], "GT HDR": ["gt_hdr", "jpg"]};
+            const methodNames = Object.keys(methodData);
+            const selectedMethodIndex = methodNames.indexOf(selectedMethod);
+            
+            if (selectedMethodIndex === -1) return;
+            
+            // 获取prompts数据
+            const prompts = {"1": "", "2": "", "3": "", "4": "", "5": "", "6": "", "7": "", "8": "", "9": "", "10": "", "11": "", "12": "", "13": "", "14": "", "15": "", "16": "", "17": "", "18": "", "19": "", "20": "", "21": "", "22": "", "23": "", "24": "", "25": "", "26": "", "27": "", "28": "", "29": "", "30": "", "31": "", "32": "", "33": "", "34": "", "35": "", "36": "", "37": "", "38": "", "39": "", "40": "", "41": "", "42": "", "43": "", "44": "", "45": "", "46": "", "47": "", "48": "", "49": "", "50": ""};
+            const maxPromptNum = Math.max(...Object.keys(prompts).map(Number));
+            
+            // 收集所有符合条件的图片
+            for (let promptNum = 1; promptNum <= maxPromptNum; promptNum++) {
+                // 应用提示过滤器
+                if (promptFilter && !matchesPromptFilter(promptNum, promptFilter)) {
+                    continue;
+                }
+                
+                // 从表格中找到对应的图片单元格
+                const rows = document.querySelectorAll('#tableBody tr');
+                const row = rows[promptNum - 1];
+                if (!row) continue;
+                
+                const cells = row.querySelectorAll('.image-cell');
+                const cell = cells[selectedMethodIndex];
+                if (!cell) continue;
+                
+                // 克隆图片容器
+                const imageContainer = cell.querySelector('.image-container');
+                if (imageContainer) {
+                    const gridItem = document.createElement('div');
+                    gridItem.className = 'grid-item';
+                    
+                    // 克隆并更新prompt信息
+                    const clonedContainer = imageContainer.cloneNode(true);
+                    const promptLabel = clonedContainer.querySelector('.prompt-label');
+                    if (promptLabel && prompts[promptNum]) {
+                        promptLabel.setAttribute('title', prompts[promptNum]);
+                    }
+                    
+                    gridItem.appendChild(clonedContainer);
+                    gridContainer.appendChild(gridItem);
+                }
+            }
+        }
+
+        function switchToTableLayout(promptFilter) {
+            const container = document.querySelector('.comparison-container');
+            container.classList.remove('grid-layout');
+            
+            // 显示表格，隐藏网格
+            const table = container.querySelector('.comparison-table');
+            const gridContainer = container.querySelector('.grid-container');
+            
+            if (table) table.style.display = '';
+            if (gridContainer) gridContainer.style.display = 'none';
+            
+            // 应用原有的表格过滤逻辑，但需要考虑prompt行和图片行
+            const rows = document.querySelectorAll('#tableBody tr');
+            let visiblePrompts = 0;
+            let visibleMethods = new Set();
+
+            // 现在每个prompt有两行：prompt行和图片行
+            for (let i = 0; i < rows.length; i += 2) {
+                const promptRow = rows[i]; // prompt行
+                const imageRow = rows[i + 1]; // 图片行
+                
+                if (!promptRow || !imageRow) continue;
+                
+                const promptNum = Math.floor(i / 2) + 1;
+                let showPrompt = true;
+
+                // Apply prompt filter
+                if (promptFilter) {
+                    showPrompt = matchesPromptFilter(promptNum, promptFilter);
+                }
+
+                // 显示或隐藏prompt行和图片行
+                promptRow.style.display = showPrompt ? '' : 'none';
+                imageRow.style.display = showPrompt ? '' : 'none';
+                
+                if (showPrompt) {
+                    visiblePrompts++;
+                    // 统计可见的方法
+                    const cells = imageRow.querySelectorAll('.image-cell');
+                    cells.forEach((cell, cellIndex) => {
+                        const methodName = Object.keys({"Input LDR": ["input_ldr", "jpg"], "LEDiff": ["lediff", "jpg"], "Bracket Diffusion": ["bracket", "jpg"], "Ours": ["ours", "jpg"], "GT HDR": ["gt_hdr", "jpg"]})[cellIndex];
+                        visibleMethods.add(methodName);
+                    });
+                }
+            }
+        }
+
+        function updateStats() {
+            const promptFilter = document.getElementById('promptFilter').value;
+            const methodFilter = document.getElementById('methodFilter').value;
+            
+            let visiblePrompts = 0;
+            let visibleMethods = 0;
+            
+            if (methodFilter === 'all') {
+                // 表格模式统计 - 只计算prompt行
+                const visiblePromptRows = document.querySelectorAll('#tableBody tr.prompt-row:not([style*="display: none"])');
+                visiblePrompts = visiblePromptRows.length;
+                visibleMethods = Object.keys({"Input LDR": ["input_ldr", "jpg"], "LEDiff": ["lediff", "jpg"], "Bracket Diffusion": ["bracket", "jpg"], "Ours": ["ours", "jpg"], "GT HDR": ["gt_hdr", "jpg"]}).length;
+            } else {
+                // 网格模式统计
+                const gridItems = document.querySelectorAll('.grid-container .grid-item');
+                visiblePrompts = gridItems.length;
+                visibleMethods = 1;
+            }
+            
+            // Update stats
+            document.getElementById('visiblePrompts').textContent = visiblePrompts;
+            document.getElementById('visibleMethods').textContent = visibleMethods;
+        }
+
+        function matchesPromptFilter(promptNum, filter) {
+            if (!filter.trim()) return true;
+            
+            const ranges = filter.split(',');
+            return ranges.some(range => {
+                range = range.trim();
+                if (range.includes('-')) {
+                    const [start, end] = range.split('-').map(n => parseInt(n.trim()));
+                    return promptNum >= start && promptNum <= end;
+                } else {
+                    return promptNum === parseInt(range);
+                }
+            });
+        }
+
+        function resetFilters() {
+            document.getElementById('promptFilter').value = '';
+            document.getElementById('methodFilter').value = 'all';
+            applyFilters();
+        }
+
+        // Event listeners
+        document.getElementById('promptFilter').addEventListener('input', applyFilters);
+        document.getElementById('methodFilter').addEventListener('change', applyFilters);
+
+        // Modal event listeners
+        window.onclick = function(event) {
+            const modal = document.getElementById('imageModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeModal();
+            } else if (event.key === 'f' || event.key === 'F') {
+                if (document.getElementById('imageModal').style.display === 'block') {
+                    toggleFullscreen();
+                }
+            }
+        });
+
+        // Lazy loading for images
+        document.addEventListener('DOMContentLoaded', function() {
+            const images = document.querySelectorAll('img[data-src]');
+            const imageObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        img.src = img.dataset.src;
+                        img.removeAttribute('data-src');
+                        observer.unobserve(img);
+                    }
+                });
+            });
+
+            images.forEach(img => imageObserver.observe(img));
+        });
+    </script>
+</body>
+</html>
